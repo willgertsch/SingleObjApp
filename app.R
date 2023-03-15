@@ -255,7 +255,7 @@ the relevant optimal design can be found using the framework of c-optimality.
                                   Inf,
                                   1),
                      numericInput("pts",
-                                  "Max design points",
+                                  "Design points",
                                   2,
                                   1,
                                   10,
@@ -272,16 +272,15 @@ the relevant optimal design can be found using the framework of c-optimality.
                      fluidRow(
                        column(
                          6,
-                         selectInput("model_selector", "Model", models),
-                         uiOutput("model_formula_display")
+                         selectInput("model_selector", "Model", models)
                        ),
                        column(
                          6,
                          textInput("theta_input", "Theta ( enter values separated by , )"),
                          selectInput("objective", "Objective", objectives)
                        )
-                     )
-                     ,
+                     ),
+                     uiOutput("model_formula_display"),
 
                      actionButton("find", "Find design"),
                      plotOutput("sens_plot"),
@@ -461,7 +460,7 @@ server = function(input, output, session) {
       x = raw[1:(l/2)]
       w = raw[(l/2 + 1):l]
       cat("Doses:\n", x[order(x)], "\n", sep = " ")
-      cat("Weights:\n", w[order(w)], "\n", sep = " ")
+      cat("Weights:\n", w[order(x)], "\n", sep = " ")
     }
   })
 
@@ -900,6 +899,60 @@ checkMinv = function(M) {
     return(0)
   else
     return(1)
+}
+
+# utility functions for fractional polynomials
+
+# Box-Tidwell transformation
+bt = function(X, p) {
+  if (p != 0)
+    return(X^p)
+  else if (p == 0)
+    return(suppressWarnings(log(X)))
+}
+
+# derivative of Box-Tidwell
+dbt = function(X, p) {
+  if (p != 0)
+    return(p * X^(p-1))
+  else if (p == 0)
+    return(1/X)
+}
+
+# H function
+# j: index
+H = function(j, X, powers) {
+  if (j == 1) # base case
+    return(1)
+  if (powers[j] != powers[j-1])
+    return(bt(X, powers[j]))
+  else if (powers[j] == powers[j-1])
+    return(suppressWarnings(log(X)) * H(j-1, X, powers))
+}
+
+# derivative of the H function
+dH = function(j, X, powers) {
+  if (j == 1) # base case
+    return(0)
+  if (powers[j] != powers[j-1])
+    return(dbt(X, powers[j]))
+  else if (powers[j] == powers[j-1])
+    return(suppressWarnings(log(X)) * dH(j-1, X, powers) +
+             H(j-1, X, powers)/X)
+}
+
+# calculates the fractional polynomial for given X, coefficients, powers
+# m: degree
+fracpoly = function(X, betas, powers, m) {
+
+  y = 0
+
+  for (j in 1:(m+1)) {
+    y = y + betas[j] * H(j, X, powers)
+  }
+
+  return(y)
+
 }
 
 
