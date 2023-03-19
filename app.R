@@ -40,6 +40,10 @@ algorithms = c(
   "HS"
 )
 
+bmd_models = c(
+  "Logistic"
+)
+
 ################################################################################
 # UI and server functions for app
 ################################################################################
@@ -308,9 +312,71 @@ the relevant optimal design can be found using the framework of c-optimality.
             actionButton("compute_eff", "Compute efficiency"),
             textOutput("eff_out")
           )
+        ),
+        tabPanel("BMD Designs",
+                 # sidebar layout for algorithm options
+                 sidebarLayout(
+                   sidebarPanel(
+                     "Algorithm options",
+                     selectInput("algorithm_bmd",
+                                 "Algorithm",
+                                 algorithms),
+                     numericInput("iter_bmd",
+                                  "Iterations",
+                                  200,
+                                  1,
+                                  Inf,
+                                  10),
+                     numericInput("swarm_bmd",
+                                  "Swarm size",
+                                  30,
+                                  10,
+                                  Inf,
+                                  10),
+                     numericInput("bound_bmd",
+                                  "Dose limit",
+                                  10,
+                                  0.1,
+                                  Inf,
+                                  1),
+                     numericInput("pts_bmd",
+                                  "Design points",
+                                  2,
+                                  1,
+                                  10,
+                                  1),
+                     numericInput("seed_bmd",
+                                  "Seed",
+                                  155,
+                                  1,
+                                  Inf,
+                                  1)
 
+                   ),
+                   mainPanel(
+                     fluidRow(
+                       column(
+                         6,
+                         selectInput("model_selector_bmd", "Model", bmd_models),
+                         selectInput("risk_type_selector", "Risk type", c("Added", "Extra")),
+                         numericInput("risk", "Risk increase",
+                                      value = 0.1, min = .01, max = .99, step = 0.01)
+                       ),
+                       column(
+                         6,
+                         textInput("theta_input_bmd", "Theta ( enter values separated by , )"),
+                         numericInput("lambda_input", "\\(\\lambda\\)",
+                                      value = 0.5, min = 0, max = 1, step = 0.1)
+                       )
+                     ),
+                     uiOutput("model_formula_display_bmd"),
 
-        )
+                     actionButton("find_bmd", "Find design"),
+                     plotOutput("sens_plot_bmd"),
+                     waiter::use_waiter(),
+                     verbatimTextOutput("design_out_bmd")
+                   )
+                 ))
       )
 
 
@@ -409,6 +475,33 @@ server = function(input, output, session) {
     }
   )
 
+  # design output
+  output$design_out = renderPrint({
+
+    raw = values$OD$design
+    obj_val = values$OD$val[[1]]
+
+
+    # case if algorithm hasn't run
+    if (length(raw) == 0) {
+      cat("No design")
+    }
+    else {
+      cat("Objective value:", obj_val, "\n")
+
+      # label and reorder
+      l = length(raw)
+      x = raw[1:(l/2)]
+      w = raw[(l/2 + 1):l]
+      cat("Doses:\n", x[order(x)], "\n", sep = " ")
+      cat("Weights:\n", w[order(x)], "\n", sep = " ")
+    }
+  })
+
+  ##############################################################################
+  # compare designs tab
+  ##############################################################################
+
   # run when compare designs button
   observeEvent(
     input$compute_eff,
@@ -441,11 +534,83 @@ server = function(input, output, session) {
             values$eff_crit[2], values$eff_crit[1])
   })
 
-  # design output
-  output$design_out = renderPrint({
+  ##############################################################################
+  # BMD design tab
+  # set up reactive data structure
+  # initialize with empty arrays and plots
+  values$OD2 <- list(
+    design = numeric(),
+    sens_plot = ggplot2::ggplot(),
+    msg = character()
+  )
 
-    raw = values$OD$design
-    obj_val = values$OD$val[[1]]
+  # display model formula
+  output$model_formula_display_bmd = renderUI({
+    p(withMathJax(model_display(input$model_selector_bmd)))
+  })
+
+  # sensitivity plot
+  output$sens_plot_bmd = renderPlot({
+
+    # load plot from reactive data
+    ggp = values$OD2$sens_plot
+
+    # display plot
+    ggp
+  })
+
+  # action for Find button
+  observeEvent(
+    input$find_bmd,
+    {
+      # set up loading indicator
+      waiter <- waiter::Waiter$new(
+        id = "sens_plot_bmd",
+        html = waiter::spin_terminal(),
+        color = "grey"
+      )$show()
+      waiter$show()
+      on.exit(waiter$hide())
+
+      # grab and process theta from raw input
+      theta = process_theta(input$theta_input_bmd)
+
+
+      # select gradient function
+      model = input$model_selector_bmd
+      if (model == "Logistic")
+        grad_fun = grad.logistic
+
+
+      # find optimal design
+      out = find_bmd_design(
+        model,
+        input$lambda_input,
+        input$risk,
+        input$risk_type_selector,
+        theta,
+        input$bound_bmd,
+        input$pts_bmd,
+        input$algorithm_bmd,
+        input$swarm_bmd,
+        input$iter_bmd,
+        input$seed_bmd
+      )
+
+      # update reactive data with new design data
+      values$OD2$msg = ""
+      values$OD2$design = out$result$result
+      values$OD2$sens_plot = out$plot
+      #values$OD$response_plot = response_plot
+      values$OD2$val = out$result$optimumValue
+    }
+  )
+
+  # design output
+  output$design_out_bmd = renderPrint({
+
+    raw = values$OD2$design
+    obj_val = values$OD2$val[[1]]
 
 
     # case if algorithm hasn't run
@@ -463,7 +628,6 @@ server = function(input, output, session) {
       cat("Weights:\n", w[order(x)], "\n", sep = " ")
     }
   })
-
 
 }
 
@@ -567,6 +731,22 @@ obj.A = function(M, param) {
     return(-sum(diag(solve(M))))
 }
 
+# BMD optimality
+obj.bmd = function(M, param) {
+
+  lambda = param[1]
+  c = param[-1]
+  if (!checkMinv(M))
+    return(-Inf)
+  else {
+    Minv = solve(M)
+    Dval = suppressWarnings(log(det(M)))
+    Cval = suppressWarnings(log(t(c) %*% Minv %*% c))
+    p = length(c)
+    return(lambda * Cval + (1 - lambda)/p * Dval)
+  }
+}
+
 # derivatives of objective functions with respect to information matrix
 # matrix singularity is already checked here
 # M: information matrix
@@ -579,6 +759,20 @@ dPsi.A = function(M, param) {
   Minv = solve(M)
   Minv2 = Minv %*% Minv
   return(Minv2)
+}
+
+# compound D and c
+# see Atkinson book p389
+dPsi.CD = function(M, param) {
+
+  Minv = solve(M)
+  p = nrow(M)
+  lambda = param[1]
+  c = param[-1]
+  num = Minv %*% c %*% t(c) %*% Minv
+  denom = c(t(c) %*% Minv %*% c)
+
+  return((1 - lambda)/p * Minv + lambda/denom * num)
 }
 
 ################################################################################
@@ -677,6 +871,63 @@ compute_eff = function(
     obj_fun_M(c(d2, w2))/obj_fun_M(c(d1, w1))
 }
 
+# function for finding BMD designs
+# basically a compound optimal design
+# lambda is the weight parameter
+find_bmd_design = function(
+    model,
+    lambda,
+    risk,
+    risk_type,
+    theta,
+    bound,
+    pts,
+    algorithm,
+    swarm,
+    iter,
+    seed
+) {
+
+  # select gradient functions
+  if (model == "Logistic") {
+    grad_fun = grad.logistic
+    bmd_grad = bmd.logistic.add
+  }
+
+  # objective function
+  c = bmd_grad(risk, theta) # compute BMD gradient components
+  param = c(lambda, c)
+  obj_fun = obj.bmd
+  obj_fun_M = obj_fun_factory(grad_fun, obj_fun, theta, param)
+
+  # set up variable bounds
+  rangeVar = matrix(c(rep(c(0, bound), pts), rep(c(0,1), pts)), nrow = 2)
+
+  # algorithm options
+  control = list(numPopulation = swarm, maxIter = iter)
+
+  # find design
+  result = metaheuristicOpt::metaOpt(
+    obj_fun_M,
+    optimType = "MAX",
+    algorithm = algorithm,
+    numVar = 2 * pts,
+    rangeVar,
+    control,
+    seed = seed
+  )
+
+  # check optimality
+  vars = result$result
+  x = vars[1:pts]
+  w = vars[(pts+1):(2*pts)]
+  M = M.nonlinear(x, w, theta, grad_fun)
+  problem = list(bound = bound, obj = "bmd", theta = theta, param = param)
+  p = plot_sens(x, w, problem, M, grad_fun)
+
+  return(list(result = result, plot = p))
+
+}
 ################################################################################
 # Core optimal design related functions
 ################################################################################
@@ -755,14 +1006,10 @@ plot_sens = function(x, w, problem, M, grad_fun) {
     dPsi = dPsi.A
     param = NULL
   }
-  else if (problem$obj == "addrisk") {
+  else if (problem$obj == "bmd") {
 
-    dPsi = dPsi.c
-    # compute c vector
-    d1 = problem$d1
-    d0 = problem$d0
-    theta = problem$theta
-    param = grad_fun(d1, theta) - grad_fun(d0, theta)
+    dPsi = dPsi.CD
+    param = problem$param
   }
   else {
     # expand this to handle solving design problems with no verification
@@ -953,6 +1200,19 @@ fracpoly = function(X, betas, powers, m) {
 
   return(y)
 
+}
+
+################################################################################
+# gradient functions for BMD
+################################################################################
+bmd.logistic.add = function(r, theta) {
+
+  beta0 = theta[1]
+  beta1 = theta[2]
+
+  g1 = r/(beta1 * (exp(beta0) + r))
+  g2 = -log(-(exp(beta0) * (r - 1))/(exp(beta0) +r)) / beta1^2
+  return(c(g1, g2))
 }
 
 
