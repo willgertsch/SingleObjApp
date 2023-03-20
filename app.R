@@ -741,7 +741,7 @@ obj.bmd = function(M, param) {
   else {
     Minv = solve(M)
     Dval = suppressWarnings(log(det(M)))
-    Cval = suppressWarnings(log(t(c) %*% Minv %*% c))
+    Cval = -suppressWarnings(log(t(c) %*% Minv %*% c)) # note the sign flip
     p = length(c)
     return(lambda * Cval + (1 - lambda)/p * Dval)
   }
