@@ -24,6 +24,7 @@ models = c(
   "Logistic quadratic",
   "Logistic cubic",
   "Logistic fractional polynomial",
+  "Weibull",
   "Mixture multistage",
   "Box-Cox Weibull"
 )
@@ -41,7 +42,8 @@ algorithms = c(
 )
 
 bmd_models = c(
-  "Logistic"
+  "Logistic",
+  "Weibull"
 )
 
 ################################################################################
@@ -447,6 +449,8 @@ server = function(input, output, session) {
         grad_fun = grad.logistic.cubic
       else if (model == "Logistic fractional polynomial")
         grad_fun = grad.logistic.fp
+      else if (model == "Weibull")
+        grad_fun = grad.weibull
       else if (model == "Mixture multistage")
         grad_fun = grad.mix2
       else if (model == "Box-Cox Weibull")
@@ -580,6 +584,8 @@ server = function(input, output, session) {
       model = input$model_selector_bmd
       if (model == "Logistic")
         grad_fun = grad.logistic
+      else if (model == "Weibull")
+        grad_fun = grad.weibull
 
 
       # find optimal design
@@ -713,6 +719,22 @@ grad.boxcoxweibull = function(x, theta) {
   return(grad)
 
 }
+
+# Weibull model
+# using version found in BMDS
+# P[dose] = g + (1 - g) * (1 - exp(-b * dose^a))
+grad.weibull = function(x, theta) {
+
+  g = theta[1]
+  a = theta[2]
+  b = theta[3]
+
+  g1 = exp(-b * x^a)
+  g2 = -b * (g - 1) * x^a * log(x) * exp(-b * x^a)
+  g3 = (g - 1) * x^a * (-exp(-b * x^a))
+  return(c(g1, g2, g3))
+}
+
 
 # D optimality
 # maximize logdetM
@@ -850,6 +872,8 @@ compute_eff = function(
     grad_fun = grad.logistic.cubic
   else if (model == "Logistic fractional polynomial")
     grad_fun = grad.logistic.fp
+  else if (model == "Weibull")
+    grad_fun == grad.weibull
   else if (model == "Mixture multistage")
     grad_fun = grad.mix2
   else if (model == "Box-Cox Weibull")
@@ -893,10 +917,20 @@ find_bmd_design = function(
     grad_fun = grad.logistic
 
     if (risk_type == "Added") {
-      bmd_grad = bmd.logistic.add
+      bmd_grad = bmdgrad.logistic.add
     }
     else if (risk_type == "Extra")
-      bmd_grad = bmd.logistic.extra
+      bmd_grad = bmdgrad.logistic.extra
+  }
+  else if (model == "Weibull") {
+    grad_fun = grad.weibull
+
+    if (risk_type == "Added") {
+      bmd_grad = bmdgrad.weibull.add
+    }
+    else if (risk_type == "Extra") {
+      bmd_grad = bmdgrad.weibull.extra
+    }
   }
 
 
@@ -930,6 +964,10 @@ find_bmd_design = function(
   M = M.nonlinear(x, w, theta, grad_fun)
   problem = list(bound = bound, obj = "bmd", theta = theta, param = param)
   p = plot_sens(x, w, problem, M, grad_fun)
+
+  # compute D-efficiency of design
+  #D_eff = compute_eff(model, theta, "bmd", )
+  # probably need to make this an option
 
   return(list(result = result, plot = p))
 
@@ -1126,7 +1164,7 @@ model_display = function(model) {
   else if (model == "Quantal linear")
     "$$P(d) = \\theta_1 + (1-\\theta_1)(1-\\exp(-\\theta_2 d))$$"
   else if (model == "Weibull")
-    "$$P(d) = \\theta_1 + (1-\\theta_1)(1-\\exp(-\\theta_2 d^\\theta_3))$$"
+    "$$P(d) = \\theta_1 + (1-\\theta_1)(1-\\exp(-\\theta_2 d^{\\theta_3}))$$"
   else if (model == "Mixture multistage")
     "$$P(d) = \\theta_6 \\left[1 - \\exp(-\\theta_1-\\theta_2 d - \\theta_3 d^2) \\right] + (1-\\theta_6)\\left[1 - \\exp(-\\theta_1 - \\theta_4 d - \\theta_5 d^2) \\right]$$"
   else if (model == "Box-Cox Weibull")
@@ -1211,7 +1249,8 @@ fracpoly = function(X, betas, powers, m) {
 ################################################################################
 # gradient functions for BMD
 ################################################################################
-bmd.logistic.add = function(r, theta) {
+# refer to the EPA's BMDS user manual for the original formulas
+bmdgrad.logistic.add = function(r, theta) {
 
   beta0 = theta[1]
   beta1 = theta[2]
@@ -1221,7 +1260,7 @@ bmd.logistic.add = function(r, theta) {
   return(c(g1, g2))
 }
 
-bmd.logistic.extra = function(r, theta) {
+bmdgrad.logistic.extra = function(r, theta) {
 
   beta0 = theta[1]
   beta1 = theta[2]
@@ -1230,6 +1269,30 @@ bmd.logistic.extra = function(r, theta) {
   g2 = - log(- (exp(beta0)*(exp(beta0)*r+r-1))/(exp(beta0)*(r+1)+r))/beta1^2
   return(c(g1, g2))
 
+}
+
+bmdgrad.weibull.add = function(r, theta) {
+
+  g = theta[1]
+  a = theta[2]
+  b = theta[3]
+
+  g1 = r * (-log((g+r-1)/(g-1))/b)^(1/(a-1)) / (a*b*(g-1)*(g+r-1))
+  g2 = -(log(-(log((g+r-1)/(g-1)))/b) * (-(log((g+r-1)/(g-1)))/b)^(1/a))/(a^2)
+  g3 = -(-log((g+r-1)/(g-1))/b)^(1/a)/(a * b)
+  return(c(g1, g2, g3))
+}
+
+bmdgrad.weibull.extra = function(r, theta) {
+
+  g = theta[1]
+  a = theta[2]
+  b = theta[3]
+
+  g1 = 0
+  g2 = - log(-log(1-r)/b)*(-log(1-r)/b)^(1/a) / a^2
+  g3 = - (-log(1-r)/b)^(1/a) / (a*b)
+  return(c(g1, g2, g3))
 }
 
 
