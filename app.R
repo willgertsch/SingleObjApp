@@ -25,6 +25,7 @@ models = c(
   "Logistic cubic",
   "Logistic fractional polynomial",
   "Weibull",
+  "Log-logistic",
   "Mixture multistage",
   "Box-Cox Weibull"
 )
@@ -43,7 +44,8 @@ algorithms = c(
 
 bmd_models = c(
   "Logistic",
-  "Weibull"
+  "Weibull",
+  "Log-logistic"
 )
 
 ################################################################################
@@ -451,6 +453,8 @@ server = function(input, output, session) {
         grad_fun = grad.logistic.fp
       else if (model == "Weibull")
         grad_fun = grad.weibull
+      else if (model == "Log-logistic")
+        grad_fun = grad.loglogistic
       else if (model == "Mixture multistage")
         grad_fun = grad.mix2
       else if (model == "Box-Cox Weibull")
@@ -586,6 +590,8 @@ server = function(input, output, session) {
         grad_fun = grad.logistic
       else if (model == "Weibull")
         grad_fun = grad.weibull
+      else if (model == "Log-logistic")
+        grad_fun = grad.loglogistic
 
 
       # find optimal design
@@ -735,6 +741,20 @@ grad.weibull = function(x, theta) {
   return(c(g1, g2, g3))
 }
 
+# log-logistic model
+# using version from BMDS
+# P[dose] = g + (1 - g)/(1 + exp(-a - b * Log(dose)))
+grad.loglogistic = function(x, theta) {
+
+  g = theta[1]
+  a = theta[2]
+  b = theta[3]
+
+  g1 = 1/(exp(a) * x^b + 1)
+  g2 = (1-g)*exp(-a-b*log(x))/(exp(-a-b*log(x)) + 1)^2
+  g3 = (1-g)*log(x)*exp(-a-b*log(x))/(exp(-a-b*log(x))+1)^2
+  return(c(g1, g2, g3))
+}
 
 # D optimality
 # maximize logdetM
@@ -874,6 +894,8 @@ compute_eff = function(
     grad_fun = grad.logistic.fp
   else if (model == "Weibull")
     grad_fun == grad.weibull
+  else if (model == "Log-logistic")
+    grad_fun == grad.loglogistic
   else if (model == "Mixture multistage")
     grad_fun = grad.mix2
   else if (model == "Box-Cox Weibull")
@@ -930,6 +952,16 @@ find_bmd_design = function(
     }
     else if (risk_type == "Extra") {
       bmd_grad = bmdgrad.weibull.extra
+    }
+  }
+  else if (model == "Log-logistic") {
+    grad_fun = grad.loglogistic
+
+    if (risk_type == "Added") {
+      bmd_grad = bmdgrad.loglogistic.add
+    }
+    else if (risk_type == "Extra") {
+      bmd_grad = bmdgrad.loglogistic.extra
     }
   }
 
@@ -1150,7 +1182,7 @@ model_display = function(model) {
   else if (model == "Logistic fractional polynomial")
     "$$P(d) = \\frac{1}{1 + \\exp(-\\theta_1 - \\theta_2 d^{\\theta_4} - \\theta_3 d^{\\theta_5})}$$"
   else if (model == "Log-logistic")
-    "$$ P(d) = \\theta_1 +  \\frac{1-\\theta_1}{1 + \\exp(-\\theta_1 - \\theta_2 \\log d)}$$"
+    "$$ P(d) = \\theta_1 +  \\frac{1-\\theta_1}{1 + \\exp(-\\theta_2- \\theta_3 \\log d)}$$"
   else if (model == "Log-probit")
     "$$ P(d) = \\theta_1 + (1 - \\theta_1) \\Phi(\\theta_2 + \\theta_3 \\log(d))$$"
   else if (model == "Multistage degree 1")
@@ -1293,6 +1325,30 @@ bmdgrad.weibull.extra = function(r, theta) {
   g2 = - log(-log(1-r)/b)*(-log(1-r)/b)^(1/a) / a^2
   g3 = - (-log(1-r)/b)^(1/a) / (a*b)
   return(c(g1, g2, g3))
+}
+
+bmdgrad.loglogistic.add = function(r, theta) {
+
+  g = theta[1]
+  a = theta[2]
+  b = theta[3]
+
+  g1 = exp(-a/b)*(-r/(g+r-1))^(1/(b+1)) / (b*r)
+  g2 = -exp(-a/b)*(-r/(g+r-1))^(1/b) / b
+  g3 = exp(-a/b)*(-r/(g+r-1))^(1/b) * (a - log(-r/(g+r-1))) / b^2
+  return(c(g1, g2, g3))
+}
+
+bmdgrad.loglogistic.extra = function(r, theta) {
+
+  g = theta[1]
+  a = theta[2]
+  b = theta[3]
+
+  g1 = 0
+  g2 = -exp((log(r/(1-r))-a)/b)/b
+  g3 = exp(-a/b) * (r/(1-r))^(1/b) * (a - log(r/(1-r))) / b^2
+  return(c(g1,g2,g3))
 }
 
 
