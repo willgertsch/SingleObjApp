@@ -891,8 +891,14 @@ find_bmd_design = function(
   # select gradient functions
   if (model == "Logistic") {
     grad_fun = grad.logistic
-    bmd_grad = bmd.logistic.add
+
+    if (risk_type == "Added") {
+      bmd_grad = bmd.logistic.add
+    }
+    else if (risk_type == "Extra")
+      bmd_grad = bmd.logistic.extra
   }
+
 
   # objective function
   c = bmd_grad(risk, theta) # compute BMD gradient components
@@ -1215,6 +1221,16 @@ bmd.logistic.add = function(r, theta) {
   return(c(g1, g2))
 }
 
+bmd.logistic.extra = function(r, theta) {
+
+  beta0 = theta[1]
+  beta1 = theta[2]
+
+  g1 = (exp(beta0) + 1)*r*(exp(beta0)*(r+1)+r-1)/(beta1*(exp(beta0)*r+r-1)*(exp(beta0)*(r+1)+r))
+  g2 = - log(- (exp(beta0)*(exp(beta0)*r+r-1))/(exp(beta0)*(r+1)+r))/beta1^2
+  return(c(g1, g2))
+
+}
 
 
 
