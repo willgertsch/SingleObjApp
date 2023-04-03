@@ -1198,7 +1198,7 @@ model_display = function(model) {
   else if (model == "Quantal linear")
     "$$P(d) = \\theta_1 + (1-\\theta_1)(1-\\exp(-\\theta_2 d))$$"
   else if (model == "Weibull")
-    "$$P(d) = \\theta_1 + (1-\\theta_1)(1-\\exp(-\\theta_2 d^{\\theta_3}))$$"
+    "$$P(d) = \\theta_1 + (1-\\theta_1)(1-\\exp(-\\theta_3 d^{\\theta_2}))$$"
   else if (model == "Mixture multistage")
     "$$P(d) = \\theta_6 \\left[1 - \\exp(-\\theta_1-\\theta_2 d - \\theta_3 d^2) \\right] + (1-\\theta_6)\\left[1 - \\exp(-\\theta_1 - \\theta_4 d - \\theta_5 d^2) \\right]$$"
   else if (model == "Box-Cox Weibull")
