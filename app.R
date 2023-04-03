@@ -609,6 +609,7 @@ server = function(input, output, session) {
         input$seed_bmd
       )
 
+
       # update reactive data with new design data
       values$OD2$msg = ""
       values$OD2$design = out$result$result
@@ -883,6 +884,7 @@ compute_eff = function(
     w2
 ) {
 
+
   # select gradient function
   if (model == "Logistic")
     grad_fun = grad.logistic
@@ -893,9 +895,9 @@ compute_eff = function(
   else if (model == "Logistic fractional polynomial")
     grad_fun = grad.logistic.fp
   else if (model == "Weibull")
-    grad_fun == grad.weibull
+    grad_fun = grad.weibull
   else if (model == "Log-logistic")
-    grad_fun == grad.loglogistic
+    grad_fun = grad.loglogistic
   else if (model == "Mixture multistage")
     grad_fun = grad.mix2
   else if (model == "Box-Cox Weibull")
