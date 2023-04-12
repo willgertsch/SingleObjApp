@@ -240,7 +240,7 @@ the relevant optimal design can be found using the framework of c-optimality.
                  # sidebar layout for algorithm options
                  sidebarLayout(
                    sidebarPanel(
-                     "Algorithm options",
+                     tags$h3("Algorithm options"),
                      selectInput("algorithm",
                                  "Algorithm",
                                  algorithms),
@@ -321,7 +321,7 @@ the relevant optimal design can be found using the framework of c-optimality.
                  # sidebar layout for algorithm options
                  sidebarLayout(
                    sidebarPanel(
-                     "Algorithm options",
+                     tags$h3("Algorithm options"),
                      selectInput("algorithm_bmd",
                                  "Algorithm",
                                  algorithms),
