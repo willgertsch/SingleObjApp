@@ -1182,7 +1182,7 @@ model_display = function(model) {
   else if (model == "Logistic cubic")
     "$$P(d) = \\frac{1}{1 + \\exp(-\\theta_1 - \\theta_2 d - \\theta_3 d^2 - \\theta_4 d^3)}$$"
   else if (model == "Logistic fractional polynomial")
-    "$$P(d) = \\frac{1}{1 + \\exp(-\\theta_1 - \\theta_2 d^{\\theta_4} - \\theta_3 d^{\\theta_5})}$$"
+    "$$P(d) = \\frac{1}{1 + \\exp(-\\theta_1 - \\theta_2 d^{\\theta_4} - \\theta_3 d^{\\theta_5})}$$\n Note: the exponent parameters are considered known and the design is not optimal for estimating these parameters."
   else if (model == "Log-logistic")
     "$$ P(d) = \\theta_1 +  \\frac{1-\\theta_1}{1 + \\exp(-\\theta_2- \\theta_3 \\log d)}$$"
   else if (model == "Log-probit")
