@@ -167,18 +167,14 @@ The most common objective functions in optimal design are based on the model inf
 information matrix if the experiment is run using the design \\(\\xi\\). Note that \\(M(\\xi, \\theta)\\)
 also depends on the parameter values of the model, meaning that a prior value for
 the parameters must be supplied. This value can come from previous data or theoretical
-models. The designs generated are referred to as \\textit{locally optimal} with
+models. The designs generated are referred to as \\(\\textit{locally optimal}\\) with
 respect to the prior \\(\\theta\\).
 
 For the nonlinear models under consideration, the information matrix can be written as
 $$
 M = M(\\xi, \\theta) = \\sum_{i=1}^k w_i M_i(\\xi, \\theta) = \\sum_{i=1}^k w_i \\nabla f(d_i, \\theta) (\\nabla f(d_i, \\theta))'
 $$
-Note that this method of writing the information matrix decomposes the information
-into the sum of the information contributed at each dose level.
-The last equality says that the information matrix is a function of the gradient
-with respect to the model parameters. This result follows from a linearization of
-the nonlinear model function using the Delta method."
+"
       ),
       tags$p(
         "Objective functions for optimal design are based around minimizing the
@@ -199,15 +195,8 @@ $$
 \\Psi_c(M) = c'M^{-1}c
 $$
 which is minimized in order to minimize the variance of some linear combination
-of the parameters. The reason why \\(\\Psi_c\\) is so useful is because it can be
-applied to construct a wide variety of domain specific objectives. Suppose \\(g(d, \\theta)\\)
-is some quantity of interest to be estimated. The variance of the estimated \\(g(d, \\theta)\\)
-can be approximated using the Delta method as
-$$
-\\operatorname{Var}(g(d, \\hat\\theta)) = \\nabla g(d, \\hat\\theta)' M^{-1} \\nabla g(d, \\hat \\theta)
-$$
-This means that for an arbitrary function \\(g\\), an objective function for finding
-the relevant optimal design can be found using the framework of c-optimality.
+of the parameters. The \\(\\Psi_c\\) objective is useful is because it can be
+applied to construct a wide variety of domain specific objectives.
 
  In order to make comparisons between different designs, it is useful to consider
  efficiency relative to the optimal design. For example, we may wish to see how a
