@@ -60,30 +60,27 @@ ui = fixedPage(
     id = "toptabpanel",
     tabPanel(
       "User manual",
-      tags$h3("Overview",
-              style = "text-align:left;"),
+
+      tags$h2("Overview of the app", style = "text-align:left;"),
       tags$p(
-        "This app allows the user to find optimal experimental designs for several
-          nonlinear models used in toxicology. It also provides a tool for
+        "This app allows the user to find optimal experimental designs for
+          nonlinear models used in toxicology and for estimating the benchmark
+          dose. It also provides a tool for
           comparing the efficiency of any two designs. This page explains how to use
           the app and the optimal design theory used to generate and interpret the results."
       ),
       tags$p(
         "This app uses metaheuristic algorithms, which are a class of
           optimization methods that have been increasingly used in recent years
-          to solve complex problems that are difficult to solve using standard
-          methods. They are inspired by natural phenomena and simulate the
+          to solve difficult problems. They are inspired by natural phenomena and simulate the
           behavior of a group of entities, such as animals, insects, or particles,
           in search of an optimal solution. Some examples of metaheuristic algorithms
           are Particle Swarm Optimization (PSO), Differential Evolution (DE),
-          Harmony Search (HS), and Grey Wolf Optimizer (GWO). These algorithms have
-          shown great success in solving a wide range of problems, including engineering,
-          economics, logistics, and data analysis. They are especially useful in optimal
+          Harmony Search (HS), and Grey Wolf Optimizer (GWO). They are especially useful in optimal
           design of experiments because they can easily be applied to a wide variety
           of design problems."
       ),
-      tags$h3("The design tab",
-              style = "text-align:left;"),
+      tags$h3("Design tab", style = "text-align:left;"),
       tags$p(
         "The design tab allows the user to use metaheuristic algorithms to find
           the optimal design for a selected nonlinear model. The sidebar allows
@@ -104,7 +101,8 @@ ui = fixedPage(
       tags$p(
         "The main pane alloes the user to select the model, parameter values,
           and the design objective. Theta values should be entered separated by
-          commas. Pressing the find design button will run the selected algorithm
+          commas, keeping in mind realistic bounds for the parameters.
+          Pressing the find design button will run the selected algorithm
           options on the design problem, display the final design, and display a
           graphical check of optimality.
           If plotted function is less than 0 with equality at the doses in the design,
@@ -116,8 +114,7 @@ ui = fixedPage(
           is that the number of doses is too few. Another common issue is that
           the dose range may be too small for the model in question."
       ),
-      tags$h3("Compare tab",
-              style = "text-align:left;"),
+      tags$h3("Compare tab", style = "text-align:left;"),
       tags$p(
         "The compare tab allows the user to compare two designs to see which
           is more efficient. This is especially useful when the goal is to compare
@@ -128,8 +125,35 @@ ui = fixedPage(
           Parameter values, dose levels, and weights should be entered as comma
           separated values."
       ),
-      tags$h3("Background",
-              style = "text-align:left;"),
+      tags$h3("BMD designs tab", style = "text-align:left;"),
+      tags$p("This tab allows user to find designs for estimating the benchmark
+             dose (BMD). The options here are similar to the other design tab, but
+             there a few features unique to the BMD designs. The BMD is defined
+             as the dose associated with a
+             pre-specified increase in the probabilty of toxicity compared to the
+             zero dose. There are two
+             ways to define this increase in risk. Added risk is defined as
+             $$
+             r_{add} = P(d) - P(0)
+             $$
+             and extra risk is defined as
+             $$
+             r_{extra} = \\frac{P(d) - P(0)}{1 - P(0)}
+             $$
+             The user can choose which risk definition to use by using the risk
+             type selector. It is also required to specify a risk increase between
+             0 and 1. Values of 0.05 and 0.10 are common choices."),
+      tags$p("The designs found in this tab are compound designs between c and D
+             optimality. The compound design is needed because a purely c-optimal
+             design for estimating the BMD is often inadequate for fitting the model.
+             For more details, see the section on compound designs in the optimal
+             design reference. Therefore, the user must choose a value between 0 and 1
+             for the weighting parameter \\(\\lambda\\). A value of 0 gives the
+             D-optimal design while values close to 1 estimate the BMD more efficiently.
+             It is recommended to choose a \\(\\lambda\\) that gives at least 80%
+             D-efficiency."),
+
+      tags$h2("Optimal design reference", style = "text-align:left;"),
       tags$p(
         "
           Suppose \\(Y\\) is an outcome variable of interest and \\(d\\) is the dosage or
@@ -176,8 +200,8 @@ M = M(\\xi, \\theta) = \\sum_{i=1}^k w_i M_i(\\xi, \\theta) = \\sum_{i=1}^k w_i 
 $$
 "
       ),
-      tags$p(
-        "Objective functions for optimal design are based around minimizing the
+      tags$h3("Objective functions", style = "text-align:left;"),
+      tags$p("Objective functions for optimal design are based around minimizing the
           variance estimated quantities or, equivalently, maximizing information
           gain of the experiment. For example, a common design strategy is to maximize
 $$
@@ -196,9 +220,10 @@ $$
 $$
 which is minimized in order to minimize the variance of some linear combination
 of the parameters. The \\(\\Psi_c\\) objective is useful is because it can be
-applied to construct a wide variety of domain specific objectives.
-
- In order to make comparisons between different designs, it is useful to consider
+applied to construct a wide variety of domain specific objectives."
+             ),
+      tags$h3("Design efficiency", style = "text-align:left;"),
+      tags$p("In order to make comparisons between different designs, it is useful to consider
  efficiency relative to the optimal design. For example, we may wish to see how a
  naive design compares to the optimal design. In the case of D-optimality,
  let \\(\\xi_D\\) be the D-optimal design. The D-efficiency of a design \\(\\xi\\) is defined as
@@ -206,17 +231,34 @@ applied to construct a wide variety of domain specific objectives.
  \\operatorname{eff}_D(\\xi) = \\left(\\frac{|\\Psi_D(\\xi)|}{|\\Psi_D(\\xi_D)|}\\right)^{1/p}
  $$
  where \\(p\\) is the number of parameters in the model. Similar efficiency functions
- may be derived for the other optimality criteria.
-
- A final useful tool optimal design is the equivalence theorem of Kiefer (1960).
+ may be derived for the other optimality criteria."),
+      tags$h3("Equivalence theorem", style = "text-align:left;"),
+      tags$p("A final useful tool optimal design is the equivalence theorem of Kiefer (1960).
  This theorem says that if a design \\(\\xi\\) is optimal, then the directional
  derivative of the design criterion evaluated at \\(\\xi\\) must satisfy an inequality
  for all dose values in the design space with equality attained when the dose is
  in the design. This provides an easy graphical test to check if the design is
- optimal. These inequalities are well known for the most common design criteria and
- can easily be derived using matrix calculus for more uncommon criteria.
-"
-      )
+ optimal. An optimal design will produce a plot where the plotted function
+             curve stays below the y=0 line except at the doses in the design."),
+      tags$h3("Compound designs", style = "text-align:left;"),
+      tags$p("A major issue with c-optimal designs is that they often result in
+             designs that are unable to fit the dose-response model. For example,
+             the c-optimal design for estimating the BMD is usually a single dose
+             design. A compound design criterion addresses this issue by using a
+             weighted combination of c and D-optimality. The compound criterion
+             is
+             $$
+             \\Psi_{CD}(M) = \\left[ \\text{eff}_D (M)\\right]^{1-\\lambda} \\left[\\text{eff}_c (M)\\right]^{\\lambda}
+             $$
+             The weighting parameter \\(\\lambda\\) ranges between 0 and 1 and
+             can be used to set how much the design deviates from the D-optimal
+             design. The designs obtained using this criterion are very similar to
+             the D-optimal design with the same number of doses, but the designs are
+             usually no longer equally weighted. It is recommended to choose
+             \\( \\lambda\\) such that the design obtains a pre-specified level
+             of D-efficiency.
+             ")
+
     ),
     tabPanel(
       "Find optimal designs",
