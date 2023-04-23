@@ -788,6 +788,91 @@ grad.loglogistic = function(x, theta) {
   return(c(g1, g2, g3))
 }
 
+# Hill model
+# P(d) = g + (v - v*g) / (1 + exp(-a-b*log(d)))
+grad.hill = function(x, theta) {
+
+  g = theta[1]
+  v = theta[2]
+  a = theta[3]
+  b = theta[4]
+
+  g1 = 1 - exp(a) * v * x^b / (exp(a) * x^b + 1)
+  g2 = - exp(a) * (g-1) * x^b / (exp(a)*x^b + 1)
+  g3 = - exp(a) * (g-1) * v * x^b / (exp(a) * x^b + 1)^2
+  g4 = - exp(a)*(g-1)*v*x^b*log(x) / (exp(a) * x^b + 1)^2
+  return(c(g1, g2, g3, g4))
+
+}
+
+# multistage 1
+# P(d) = g + (1-g)*(1-exp(-a*d))
+grad.multi1 = function(x, theta) {
+
+  g = theta[1]
+  a = theta[2]
+
+  g1 = exp(-a * x)
+  g2 = -(g-1)*x*exp(-a*x)
+  return(c(g1, g2))
+}
+
+# multistage 2
+# P(d) = g + (1-g)*(1-exp(-a*d - b*d^2))
+grad.multi2 = function(x, theta) {
+
+  g = theta[1]
+  a = theta[2]
+  b = theta[3]
+
+  g1 = exp(-a*x - b*x^2)
+  g2 = (1-g)*x*exp(-a*x - b*x^2)
+  g3 = (1-g)*x^2*exp(-a*x - b*x^2)
+  return(c(g1, g2, g3))
+}
+
+# multistage 3
+# P(d) = g + (1-g)*(1-exp(-a*d - b*d^2 - c*d^3))
+grad.multi3 = function(x, theta) {
+
+  g = theta[1]
+  a = theta[2]
+  b = theta[3]
+  c = theta[4]
+
+  g1 = exp(-a*x - b*x^2 - c*x^3)
+  g2 = x*(1-g)*exp(-a*x - b*x^2 - c*x^3)
+  g3 = x^2*(1-g)*exp(-a*x - b*x^2 - c*x^3)
+  g4 = x^3*(1-g)*exp(-a*x - b*x^2 - c*x^3)
+  return(c(g1, g2, g3, g4))
+}
+
+# probit
+# P(d) = phi(a + bx)
+grad.probit = function(x, theta) {
+
+  a = theta[1]
+  b = theta[2]
+
+  g1 = 1/sqrt(2*pi)*exp(-(a+b*x)^2/2)
+  g2 = 1/sqrt(2*pi)*exp(-(a+b*x)^2/2) * b
+  return(c(g1, g2))
+}
+
+# log probit
+# P(d) = g + (1-g) * phi(a + b*log(d))
+grad.logprobit = function(x, theta) {
+
+  g = theta[1]
+  a = theta[2]
+  b = theta[3]
+
+  g1 = 1 - pnorm(a + b * log(x))
+  g2 = (1-g) * 1/sqrt(2*pi)*exp(-(a+b*log(x))^2/2)
+  g3 = (1-g) * 1/sqrt(2*pi)*exp(-(a+b*log(x))^2/2) * log(x)
+  return(c(g1, g2, g3))
+}
+
 # D optimality
 # maximize logdetM
 obj.D = function(M, param) {
