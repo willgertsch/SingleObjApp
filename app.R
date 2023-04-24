@@ -21,17 +21,17 @@ library(metaheuristicOpt)
 ################################################################################
 models = c(
   "Logistic",
+  "Log-logistic",
+  "Weibull",
+  "Multistage 1",
+  "Multistage 2",
+  "Multistage 3",
+  "Hill",
   "Logistic quadratic",
   "Logistic cubic",
   "Logistic fractional polynomial",
-  "Weibull",
-  "Log-logistic",
   "Mixture multistage",
-  "Box-Cox Weibull",
-  "Hill",
-  "Multistage 1",
-  "Multistage 2",
-  "Multistage 3"
+  "Box-Cox Weibull"
  # "Probit",
  # "Log-probit"
 )
