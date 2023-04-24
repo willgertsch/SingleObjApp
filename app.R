@@ -31,7 +31,7 @@ models = c(
   "Logistic cubic",
   "Logistic fractional polynomial",
   "Mixture multistage",
-  "Box-Cox Weibull"
+  #"Box-Cox Weibull"
  # "Probit",
  # "Log-probit"
 )
