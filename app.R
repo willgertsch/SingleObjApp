@@ -27,7 +27,13 @@ models = c(
   "Weibull",
   "Log-logistic",
   "Mixture multistage",
-  "Box-Cox Weibull"
+  "Box-Cox Weibull",
+  "Hill",
+  "Multistage 1",
+  "Multistage 2",
+  "Multistage 3"
+ # "Probit",
+ # "Log-probit"
 )
 
 objectives = c(
@@ -474,22 +480,7 @@ server = function(input, output, session) {
 
       # select gradient function
       model = input$model_selector
-      if (model == "Logistic")
-        grad_fun = grad.logistic
-      else if (model == "Logistic quadratic")
-        grad_fun = grad.logistic.quad
-      else if (model == "Logistic cubic")
-        grad_fun = grad.logistic.cubic
-      else if (model == "Logistic fractional polynomial")
-        grad_fun = grad.logistic.fp
-      else if (model == "Weibull")
-        grad_fun = grad.weibull
-      else if (model == "Log-logistic")
-        grad_fun = grad.loglogistic
-      else if (model == "Mixture multistage")
-        grad_fun = grad.mix2
-      else if (model == "Box-Cox Weibull")
-        grad_fun = grad.boxcoxweibull
+      grad_fun = grad_selector(model)
 
       # find optimal design
       out = find_design_single(
@@ -1002,22 +993,7 @@ compute_eff = function(
 
 
   # select gradient function
-  if (model == "Logistic")
-    grad_fun = grad.logistic
-  else if (model == "Logistic quadratic")
-    grad_fun = grad.logistic.quad
-  else if (model == "Logistic cubic")
-    grad_fun = grad.logistic.cubic
-  else if (model == "Logistic fractional polynomial")
-    grad_fun = grad.logistic.fp
-  else if (model == "Weibull")
-    grad_fun = grad.weibull
-  else if (model == "Log-logistic")
-    grad_fun = grad.loglogistic
-  else if (model == "Mixture multistage")
-    grad_fun = grad.mix2
-  else if (model == "Box-Cox Weibull")
-    grad_fun = grad.boxcoxweibull
+  grad_fun = grad_selector(model)
 
   if (objective == "D")
     obj_fun = obj.D
@@ -1319,6 +1295,18 @@ model_display = function(model) {
     "$$P(d) = \\theta_6 \\left[1 - \\exp(-\\theta_1-\\theta_2 d - \\theta_3 d^2) \\right] + (1-\\theta_6)\\left[1 - \\exp(-\\theta_1 - \\theta_4 d - \\theta_5 d^2) \\right]$$"
   else if (model == "Box-Cox Weibull")
     "$$P(d)=1-\\exp \\left[ -\\exp \\left(\\theta_1 + \\theta_2 \\frac{d^{\\theta_3}-1}{\\theta_3}\\right)\\right]$$"
+  else if (model == "Hill")
+    "$$P(d) = \\theta_1 + \\frac{\\theta_2 - \\theta_2\\theta_1}{1+\\exp(-\\theta_3 - \\theta_4 d)}$$"
+  else if (model == "Multistage 1")
+    "$$P(d) = \\theta_1 + (1-\\theta_1)(1 - \\exp(-\\theta_2 d))$$"
+  else if (model == "Multistage 2")
+    "$$P(d) = \\theta_1 + (1-\\theta_1)(1 - \\exp(-\\theta_2 d - \\theta_3 d^2))$$"
+  else if (model == "Multistage 3")
+    "$$P(d) = \\theta_1 + (1-\\theta_1)(1 - \\exp(-\\theta_2 d - \\theta_3 d^2 - \\theta_4 d^3))$$"
+  else if (model == "Probit")
+    "$$P(d) = \\phi(\\theta_1 + \\theta_2 d)$$"
+  else if (model == "Log-probit")
+    "$$P(d) = \\theta_1 + (1-\\theta_1) \\phi(\\theta_2 + \\theta_3 * \\log(d))$$"
   else
     "Model not supported"
 
@@ -1394,6 +1382,42 @@ fracpoly = function(X, betas, powers, m) {
 
   return(y)
 
+}
+
+# model selector
+# returns gradient function
+grad_selector = function(model) {
+
+  if (model == "Logistic")
+    grad_fun = grad.logistic
+  else if (model == "Logistic quadratic")
+    grad_fun = grad.logistic.quad
+  else if (model == "Logistic cubic")
+    grad_fun = grad.logistic.cubic
+  else if (model == "Logistic fractional polynomial")
+    grad_fun = grad.logistic.fp
+  else if (model == "Weibull")
+    grad_fun = grad.weibull
+  else if (model == "Log-logistic")
+    grad_fun = grad.loglogistic
+  else if (model == "Mixture multistage")
+    grad_fun = grad.mix2
+  else if (model == "Box-Cox Weibull")
+    grad_fun = grad.boxcoxweibull
+  else if (model == "Hill")
+    grad_fun = grad.hill
+  else if (model == "Multistage 1")
+    grad_fun = grad.multi1
+  else if (model == "Multistage 2")
+    grad_fun = grad.multi2
+  else if (model == "Multistage 3")
+    grad_fun = grad.multi3
+  else if (model == "Probit")
+    grad_fun = grad.probit
+  else if (model == "Log-probit")
+    grad_fun = grad.logprobit
+
+  return(grad_fun)
 }
 
 ################################################################################
