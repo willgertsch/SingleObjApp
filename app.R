@@ -30,7 +30,7 @@ models = c(
   "Logistic quadratic",
   "Logistic cubic",
   "Logistic fractional polynomial",
-  "Mixture multistage",
+  "Mixture multistage"
   #"Box-Cox Weibull"
  # "Probit",
  # "Log-probit"
@@ -507,31 +507,40 @@ server = function(input, output, session) {
       # grab and process theta from raw input
       theta = process_theta(input$theta_input)
 
-
-      # select gradient function
+      # check model bounds
       model = input$model_selector
-      grad_fun = grad_selector(model)
+      if (check_bounds(model, theta)) {
+        # select gradient function
+        grad_fun = grad_selector(model)
 
-      # find optimal design
-      out = find_design_single(
-        grad_fun,
-        input$objective,
-        theta,
-        input$bound,
-        input$pts,
-        input$algorithm,
-        input$swarm,
-        input$iter,
-        input$seed
-      )
+        # find optimal design
+        out = find_design_single(
+          grad_fun,
+          input$objective,
+          theta,
+          input$bound,
+          input$pts,
+          input$algorithm,
+          input$swarm,
+          input$iter,
+          input$seed
+        )
 
-      # update reactive data with new design data
-      values$OD$msg = ""
-      values$OD$design = out$result$result
-      values$OD$sens_plot = out$plot
-      #values$OD$response_plot = response_plot
-      values$OD$val = out$result$optimumValue
-
+        # update reactive data with new design data
+        values$OD$msg = ""
+        values$OD$design = out$result$result
+        values$OD$sens_plot = out$plot
+        #values$OD$response_plot = response_plot
+        values$OD$val = out$result$optimumValue
+      }
+      else {
+        # show error message in plot
+        p = ggplot2::ggplot(mapping = ggplot2::aes()) +
+          ggplot2::theme_bw() +
+          ggplot2::annotate("text", x = 5, y = 0.5,
+                            label = "Theta values out of bound", size = 5)
+        values$OD$sens_plot = p
+      }
     }
   )
 
@@ -648,39 +657,51 @@ server = function(input, output, session) {
       # grab and process theta from raw input
       theta = process_theta(input$theta_input_bmd)
 
-
-      # select gradient function
+      # check theta values
       model = input$model_selector_bmd
-      if (model == "Logistic")
-        grad_fun = grad.logistic
-      else if (model == "Weibull")
-        grad_fun = grad.weibull
-      else if (model == "Log-logistic")
-        grad_fun = grad.loglogistic
+      if (check_bounds(model, theta)) {
+        # select gradient function
+        if (model == "Logistic")
+          grad_fun = grad.logistic
+        else if (model == "Weibull")
+          grad_fun = grad.weibull
+        else if (model == "Log-logistic")
+          grad_fun = grad.loglogistic
 
 
-      # find optimal design
-      out = find_bmd_design(
-        model,
-        input$lambda_input,
-        input$risk,
-        input$risk_type_selector,
-        theta,
-        input$bound_bmd,
-        input$pts_bmd,
-        input$algorithm_bmd,
-        input$swarm_bmd,
-        input$iter_bmd,
-        input$seed_bmd
-      )
+        # find optimal design
+        out = find_bmd_design(
+          model,
+          input$lambda_input,
+          input$risk,
+          input$risk_type_selector,
+          theta,
+          input$bound_bmd,
+          input$pts_bmd,
+          input$algorithm_bmd,
+          input$swarm_bmd,
+          input$iter_bmd,
+          input$seed_bmd
+        )
 
 
-      # update reactive data with new design data
-      values$OD2$msg = ""
-      values$OD2$design = out$result$result
-      values$OD2$sens_plot = out$plot
-      #values$OD$response_plot = response_plot
-      values$OD2$val = out$result$optimumValue
+        # update reactive data with new design data
+        values$OD2$msg = ""
+        values$OD2$design = out$result$result
+        values$OD2$sens_plot = out$plot
+        #values$OD$response_plot = response_plot
+        values$OD2$val = out$result$optimumValue
+      }
+      else {
+        # show error message in plot
+        p = ggplot2::ggplot(mapping = ggplot2::aes()) +
+          ggplot2::theme_bw() +
+          ggplot2::annotate("text", x = 5, y = 0.5,
+                            label = "Theta values out of bound", size = 5)
+        values$OD2$sens_plot = p
+      }
+
+
     }
   )
 
@@ -1372,6 +1393,131 @@ model_display = function(model) {
 # useful in multiple places where there is text input
 process_theta = function(text) {
   as.numeric(strsplit(text, ",")[[1]])
+}
+
+# function for checking model parameter bounds
+# inputs: model type and parameters
+# returns true if parameters are within bounds for model
+check_bounds = function(model, theta) {
+
+  # being very generous on beta coefficient ranges
+  if (model == "Logistic") {
+    if (theta[1] < -18 | theta[1] > 18)
+      return(FALSE)
+    if (theta[2] < -100 | theta[2] > 100)
+      return(FALSE)
+  }
+  else if (model == "Logistic quadratic") {
+    if (theta[1] < -18 | theta[1] > 18)
+      return(FALSE)
+    if (theta[2] < -100 | theta[2] > 100)
+      return(FALSE)
+    if (theta[3] < -100 | theta[3] > 100)
+      return(FALSE)
+  }
+  else if (model == "Logistic cubic") {
+    if (theta[1] < -18 | theta[1] > 18)
+      return(FALSE)
+    if (theta[2] < -100 | theta[2] > 100)
+      return(FALSE)
+    if (theta[3] < -100 | theta[3] > 100)
+      return(FALSE)
+    if (theta[4] < -100 | theta[4] > 100)
+      return(FALSE)
+  }
+  else if (model == "Logistic fractional polynomial") {
+    if (theta[1] < -18 | theta[1] > 18)
+      return(FALSE)
+    if (theta[2] < -100 | theta[2] > 100)
+      return(FALSE)
+    if (theta[3] < -100 | theta[3] > 100)
+      return(FALSE)
+  }
+  else if (model == "Weibull") {
+    if (theta[1] < 0 | theta[1] >= 1)
+      return(FALSE)
+    if (theta[2] <= 0 | theta[2] > 18)
+      return(FALSE)
+    if (theta[3] <= 0 | theta[3] > 100)
+      return(FALSE)
+  }
+  else if (model == "Log-logistic") {
+    if (theta[1] < 0 | theta[1] >= 1)
+      return(FALSE)
+    if (theta[2] < -18 | theta[2] > 18)
+      return(FALSE)
+    if (theta[3] <= 0 | theta[3] > 18)
+      return(FALSE)
+  }
+  else if (model == "Mixture multistage") {
+
+    # bounding for regression coef is same as in a multistage
+    # being less restrictive than EPA guidelines
+    if(theta[1] < -100 | theta[1] > 100)
+      return(FALSE)
+    if(theta[2] < -100 | theta[2] > 100)
+      return(FALSE)
+    if(theta[3] < -100 | theta[3] > 100)
+      return(FALSE)
+    if(theta[4] < -100 | theta[4] > 100)
+      return(FALSE)
+    if(theta[5] < -100 | theta[5] > 100)
+      return(FALSE)
+    if(theta[6] < 0 | theta[6] > 1)
+      return(FALSE)
+  }
+  else if (model == "Hill") {
+    if (theta[1] < 0 | theta[1] >= 1)
+      return(FALSE)
+    if (theta[2] < -18 | theta[2] > 18)
+      return(FALSE)
+    if (theta[3] < -18 | theta[3] > 18)
+      return(FALSE)
+    if (theta[4] < 0 | theta[4] > 18)
+      return(FALSE)
+  }
+  else if (model == "Multistage 1") {
+    if (theta[1] < 0 | theta[1] >= 1)
+      return(FALSE)
+    if(theta[2] < -100 | theta[2] > 100)
+      return(FALSE)
+
+  }
+  else if (model == "Multistage 2") {
+    if (theta[1] < 0 | theta[1] >= 1)
+      return(FALSE)
+    if(theta[2] < -100 | theta[2] > 100)
+      return(FALSE)
+    if(theta[3] < -100 | theta[3] > 100)
+      return(FALSE)
+  }
+  else if (model == "Multistage 3") {
+    if (theta[1] < 0 | theta[1] >= 1)
+      return(FALSE)
+    if(theta[2] < -100 | theta[2] > 100)
+      return(FALSE)
+    if(theta[3] < -100 | theta[3] > 100)
+      return(FALSE)
+    if(theta[4] < -100 | theta[4] > 100)
+      return(FALSE)
+  }
+  else if (model == "Probit") {
+    if (theta[1] < -18 | theta[1] > 18)
+      return(FALSE)
+    if (theta[2] <= 0 | theta[2] > 18)
+      return(FALSE)
+  }
+  else if (model == "Log-probit") {
+    if (theta[1] < 0 | theta[1] >= 1)
+      return(FALSE)
+    if (theta[2] < -18 | theta[2] > 18)
+      return(FALSE)
+    if (theta[3] <= 0 | theta[3] > 18)
+      return(FALSE)
+  }
+
+  return(TRUE)
+
 }
 
 # checks if information matrix is invertible
