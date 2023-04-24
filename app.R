@@ -330,7 +330,8 @@ applied to construct a wide variety of domain specific objectives."
                      actionButton("find", "Find design"),
                      plotOutput("sens_plot"),
                      waiter::use_waiter(),
-                     verbatimTextOutput("design_out")
+                     verbatimTextOutput("design_out"),
+                     actionButton("copy_design", "Copy design to compare tab")
                    )
                  )),
         tabPanel(
@@ -415,7 +416,8 @@ applied to construct a wide variety of domain specific objectives."
                      actionButton("find_bmd", "Find design"),
                      plotOutput("sens_plot_bmd"),
                      waiter::use_waiter(),
-                     verbatimTextOutput("design_out_bmd")
+                     verbatimTextOutput("design_out_bmd"),
+                     actionButton("copy_design_bmd", "Copy design to compare tab")
                    )
                  ))
       )
@@ -429,7 +431,6 @@ server = function(input, output, session) {
 
   # reactive data structure
   values <- reactiveValues()
-  values$upload_state = NULL # flag for managing file uploads
   values$DT <- data.frame(x = numeric(),
                           y = numeric(),
                           yhat = numeric()
@@ -442,6 +443,8 @@ server = function(input, output, session) {
   # initialize with empty arrays and plots
   values$OD <- list(
     design = numeric(),
+    x = numeric(),
+    w = numeric(),
     sens_plot = ggplot2::ggplot(),
     msg = character()
   )
@@ -525,9 +528,20 @@ server = function(input, output, session) {
       w = raw[(l/2 + 1):l]
       cat("Doses:\n", x[order(x)], "\n", sep = " ")
       cat("Weights:\n", w[order(x)], "\n", sep = " ")
+
+      # save ordered doses and weights
+      values$OD$x = x[order(x)]
+      values$OD$w = w[order(x)]
     }
   })
 
+  observeEvent(
+    input$copy_design,
+    {
+      updateTextInput(session, "\\xi2_doses", value = toString(values$OD$x))
+      updateTextInput(session, "\\xi2_weights", value = toString(values$OD$w))
+    }
+  )
   ##############################################################################
   # compare designs tab
   ##############################################################################
@@ -570,6 +584,8 @@ server = function(input, output, session) {
   # initialize with empty arrays and plots
   values$OD2 <- list(
     design = numeric(),
+    x = numeric(),
+    w = numeric(),
     sens_plot = ggplot2::ggplot(),
     msg = character()
   )
@@ -661,8 +677,20 @@ server = function(input, output, session) {
       w = raw[(l/2 + 1):l]
       cat("Doses:\n", x[order(x)], "\n", sep = " ")
       cat("Weights:\n", w[order(x)], "\n", sep = " ")
+
+      # save ordered doses and weights
+      values$OD2$x = x[order(x)]
+      values$OD2$w = w[order(x)]
     }
   })
+
+  observeEvent(
+    input$copy_design_bmd,
+    {
+      updateTextInput(session, "\\xi2_doses", value = toString(values$OD2$x))
+      updateTextInput(session, "\\xi2_weights", value = toString(values$OD2$w))
+    }
+  )
 
 }
 
