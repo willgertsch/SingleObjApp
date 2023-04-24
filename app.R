@@ -314,6 +314,14 @@ applied to construct a wide variety of domain specific objectives."
 
                    ),
                    mainPanel(
+                     "This tab can be used to find A and D optimal designs for
+                     various dose response models. Prior values for the model
+                     parameters (theta) must be supplied. It is recommended to
+                     obtain theta values from dedicated model fitting software or
+                     from published results. Once the theta values have been entered,
+                     the design can be found by using the find design button. For
+                     more information on how to use the other options and tips, refer to
+                     the design tab section in the user manual tab.",
                      fluidRow(
                        column(
                          6,
@@ -336,7 +344,14 @@ applied to construct a wide variety of domain specific objectives."
                  )),
         tabPanel(
           "Compare",
-          "Compare the design efficiency of design \\(\\xi_1\\) relative to the design \\(\\xi_2\\).",
+          "Compare the efficiency of design \\(\\xi_1\\) relative to the
+          design \\(\\xi_2\\). The efficiency is a number between 0 and 1 where
+          a value close to 1 means that design 1 is nearly as good as design 2.
+          More information can found in the user manual tab.",
+          "The doses and weights may be obtained using the
+          other tabs and entered as comma separated values. Alternatively, a real-world
+          design can be entered to be checked against the optimal design. For more
+          information, refer to the compare tab section in the user manual tab.",
           selectInput("model_selector_compare", "Model", models),
           textInput("theta_input_compare", "Theta ( enter values separated by , )"),
           selectInput("objective_compare", "Objective", objectives),
@@ -396,6 +411,18 @@ applied to construct a wide variety of domain specific objectives."
 
                    ),
                    mainPanel(
+                     "This tab allows the user to find optimal designs for estimating
+                     the benchmark dose (BMD) while still efficiently estimating
+                     the model parameters. This tab works similarly to the other design
+                     tab, but includes several new options. The user must select
+                     the risk type and set a pre-specified level of risk for the
+                     BMD. These are described in more detail in the BMD designs tab
+                     section in the user manual. The user must also choose a lambda
+                     value which controls the trade-off between estimating the BMD
+                     and the model parameters. The value of lambda ranges between 0
+                     and 1 with values close to 1 placing a higher priority on estimating
+                     the BMD. A good starting value for lambda is 0.5. More information
+                     and tips can be found in the user manual.",
                      fluidRow(
                        column(
                          6,
