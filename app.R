@@ -1370,8 +1370,13 @@ model_display = function(model) {
     "$$P(d) = \\frac{1}{1 + \\exp(-\\theta_1 - \\theta_2 d - \\theta_3 d^2)}$$"
   else if (model == "Logistic cubic")
     "$$P(d) = \\frac{1}{1 + \\exp(-\\theta_1 - \\theta_2 d - \\theta_3 d^2 - \\theta_4 d^3)}$$"
-  else if (model == "Logistic fractional polynomial")
-    "$$P(d) = \\frac{1}{1 + \\exp(-\\theta_1 - \\theta_2 d^{\\theta_4} - \\theta_3 d^{\\theta_5})}$$\n Note: the exponent parameters are considered known and the design is not optimal for estimating these parameters."
+  else if (model == "Logistic fractional polynomial") {
+    "$$P(d) = \\frac{1}{1 + \\exp(-\\theta_1 - \\theta_2 d^{\\theta_4} - \\theta_3 d^{\\theta_5})}$$
+    \n Note: the exponent parameters are considered known and the design is not
+    optimal for estimating these parameters. The optimal design will most likely
+    have 3 doses."
+
+  }
   else if (model == "Log-logistic")
     "$$ P(d) = \\theta_1 +  \\frac{1-\\theta_1}{1 + \\exp(-\\theta_2- \\theta_3 \\log d)}$$"
   else if (model == "Log-probit")
@@ -1564,8 +1569,11 @@ plot_response = function(model, theta, limit) {
     y = 1/(1 + exp(-theta[1] - theta[2]*x - theta[3]*x^2))
   else if (model == "Logistic cubic")
     y = 1/(1 + exp(-theta[1] - theta[2]*x - theta[3]*x^2 - theta[4]*x^3))
-  else if (model == "Logistic fractional polynomial")
-    y = x # don't understand how my code works
+  else if (model == "Logistic fractional polynomial") {
+    powers = c(0, theta[4], theta[5])
+    eta = theta[1] + theta[2]*H(2, x, powers) + theta[4]*H(3, x, powers)
+    y = 1/(1+exp(-eta))
+  }
   else if (model == "Mixture multistage")
     y = theta[6]*(1-exp(-theta[1]-theta[2]*x-theta[3]*x^2)) + (1-theta[6])*(1-exp(-theta[1]-theta[4]*x - theta[5]*x^2))
   else
