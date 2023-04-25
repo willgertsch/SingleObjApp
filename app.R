@@ -77,7 +77,7 @@ ui = fixedPage(
       ),
       tags$p(
         "This app uses metaheuristic algorithms, which are a class of
-          optimization methods that have been increasingly used in recent years
+          optimization methods that have been widely used
           to solve difficult problems. They are inspired by natural phenomena and simulate the
           behavior of a group of entities, such as animals, insects, or particles,
           in search of an optimal solution. Some examples of metaheuristic algorithms
@@ -95,7 +95,7 @@ ui = fixedPage(
           options tell the algorithm how long to run and the diversity of the search.
           Increasing both the number of iterations and the swarm size will make it
           more likely that the optimal design will be found but increases the run
-          time. The dose limit option contols the highest dose allowed.
+          time. The dose limit option controls the highest dose allowed.
           The limit should be chosen based on background knowledge of the
           experiment. A lower dose limit will limit the search space and make the
           optimal design easier to find. The design points option controls how
@@ -134,9 +134,9 @@ ui = fixedPage(
       tags$h3("BMD designs tab", style = "text-align:left;"),
       tags$p("This tab allows user to find designs for estimating the benchmark
              dose (BMD). The options here are similar to the other design tab, but
-             there a few features unique to the BMD designs. The BMD is defined
+             there are a few features unique to the BMD designs. The BMD is defined
              as the dose associated with a
-             pre-specified increase in the probabilty of toxicity compared to the
+             pre-specified increase in the probability of toxicity compared to the
              zero dose. There are two
              ways to define this increase in risk. Added risk is defined as
              $$
@@ -153,7 +153,7 @@ ui = fixedPage(
              optimality. The compound design is needed because a purely c-optimal
              design for estimating the BMD is often inadequate for fitting the model.
              For more details, see the section on compound designs in the optimal
-             design reference. Therefore, the user must choose a value between 0 and 1
+             design reference. The user must choose a value between 0 and 1
              for the weighting parameter \\(\\lambda\\). A value of 0 gives the
              D-optimal design while values close to 1 estimate the BMD more efficiently.
              It is recommended to choose a \\(\\lambda\\) that gives at least 80%
@@ -163,9 +163,9 @@ ui = fixedPage(
       tags$p(
         "
           Suppose \\(Y\\) is an outcome variable of interest and \\(d\\) is the dosage or
-          concentration of the substance under investigation. For this work, we
-          additionally assumed that \\(Y\\) is a binary variable that is equal to one
-          if toxicity has occured and equal to 0 otherwise. We also assume the
+          concentration of the substance under investigation. We
+          additionally assume that \\(Y\\) is a binary variable that is equal to one
+          if toxicity has occurred and equal to 0 otherwise. We also assume the
           that the dose \\(d\\) is in the range \\([0, D]\\) where \\(D\\) is highest
           experimentally feasible dose. The goal of a dose response experiment
           is to establish a mathematical relationship of the form
@@ -179,7 +179,7 @@ The error term \\(\\epsilon\\) is most commonly assumed to have a normal distrib
 The goal of optimal design is to choose good values for the doses included in the
 experiment and the number of subjects to assign to each dose. Let \\(d_i\\) denote the
 ith dose in the design and let \\(n_i\\) be the number of subjects assigned to the ith
-dose for \\(i = 1, \\dots, k\\).  For generalizabillity and theoretical convenience,
+dose for \\(i = 1, \\dots, k\\).  For generalizability and theoretical convenience,
 we assume a fixed sample size \\(N\\) and work with the proportions assigned to each
 dose instead of the raw \\(n_i\\). Define \\(w_i\\) as \\(w_i = n_i/N\\) such that \\(\\sum_i^k w_i = 1\\).
 Using this weight-based notation, we can define a \\(k\\) dose design as a probability measure on \\([0, D]\\).
@@ -239,7 +239,7 @@ applied to construct a wide variety of domain specific objectives."
  where \\(p\\) is the number of parameters in the model. Similar efficiency functions
  may be derived for the other optimality criteria."),
       tags$h3("Equivalence theorem", style = "text-align:left;"),
-      tags$p("A final useful tool optimal design is the equivalence theorem of Kiefer (1960).
+      tags$p("A final useful tool for optimal design is the equivalence theorem of Kiefer (1960).
  This theorem says that if a design \\(\\xi\\) is optimal, then the directional
  derivative of the design criterion evaluated at \\(\\xi\\) must satisfy an inequality
  for all dose values in the design space with equality attained when the dose is
