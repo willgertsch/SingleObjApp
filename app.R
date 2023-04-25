@@ -336,6 +336,7 @@ applied to construct a wide variety of domain specific objectives."
                      uiOutput("model_formula_display"),
 
                      actionButton("find", "Find design"),
+                     actionButton("plot_response", "Plot response"),
                      plotOutput("sens_plot"),
                      waiter::use_waiter(),
                      verbatimTextOutput("design_out"),
@@ -439,8 +440,8 @@ applied to construct a wide variety of domain specific objectives."
                        )
                      ),
                      uiOutput("model_formula_display_bmd"),
-
                      actionButton("find_bmd", "Find design"),
+                     actionButton("plot_response_bmd", "Plot Response"),
                      plotOutput("sens_plot_bmd"),
                      waiter::use_waiter(),
                      verbatimTextOutput("design_out_bmd"),
@@ -448,8 +449,6 @@ applied to construct a wide variety of domain specific objectives."
                    )
                  ))
       )
-
-
     )
   )
 )
@@ -541,6 +540,17 @@ server = function(input, output, session) {
                             label = "Theta values out of bound", size = 5)
         values$OD$sens_plot = p
       }
+    }
+  )
+
+  # plotting dose response function
+  observeEvent(
+    input$plot_response,
+    {
+      model = input$model_selector
+      theta = process_theta(input$theta_input)
+      values$OD$sens_plot = plot_response(model, theta,
+                                          input$bound)
     }
   )
 
@@ -702,6 +712,17 @@ server = function(input, output, session) {
       }
 
 
+    }
+  )
+
+  # plotting dose response function
+  observeEvent(
+    input$plot_response_bmd,
+    {
+      model = input$model_selector_bmd
+      theta = process_theta(input$theta_input_bmd)
+      values$OD2$sens_plot = plot_response(model, theta,
+                                          input$bound_bmd)
     }
   )
 
@@ -1339,7 +1360,7 @@ sens = function(z, grad, dPsi, M, theta, param) {
 # function that displays latex formulas for models in app
 model_display = function(model) {
 
-  if (model == "Dichotomous Hill")
+  if (model == "Hill")
     "$$ P(d) = \\theta_1 + \\frac{(\\theta_2 - \\theta_2 \\theta_1)}{1 + \\exp(-\\theta_3 - \\theta_4\\log (d))} $$"
   # else if (model == "Gamma") # don't know how to do this => Elvis' paper reparameterizes
   #   "$$ P(d) = $$"
@@ -1355,12 +1376,6 @@ model_display = function(model) {
     "$$ P(d) = \\theta_1 +  \\frac{1-\\theta_1}{1 + \\exp(-\\theta_2- \\theta_3 \\log d)}$$"
   else if (model == "Log-probit")
     "$$ P(d) = \\theta_1 + (1 - \\theta_1) \\Phi(\\theta_2 + \\theta_3 \\log(d))$$"
-  else if (model == "Multistage degree 1")
-    "$$P(d) = \\theta_1 + (1 - \\theta_1)(1 - \\exp(-\\theta_2 d))$$"
-  else if (model == "Multistage degree 2")
-    "$$P(d) = \\theta_1 + (1 - \\theta_1)(1 - \\exp(-\\theta_2 d - \\theta_3 d^2))$$"
-  else if (model == "Multistage degree 3")
-    "$$P(d) = \\theta_1 + (1 - \\theta_1)(1 - \\exp(-\\theta_2 d - \\theta_3 d^2 - \\theta_4 d^3))$$"
   else if (model == "Probit")
     "$$P(d)=\\Phi(\\theta_1 + \\theta_2 d)$$"
   else if (model == "Quantal linear")
@@ -1518,6 +1533,54 @@ check_bounds = function(model, theta) {
 
   return(TRUE)
 
+}
+
+# plotting function for dose response model
+# model: string name of dose response model
+# theta: vector of model parameter values
+# limit: dose limit, will control how much of the dose response function is shown
+# returns: a ggplot of the dose response function
+plot_response = function(model, theta, limit) {
+
+  # generate dose levels
+  x = seq(0, limit, length.out=100)
+
+  # compute response using appropriate model function
+  if (model == "Logistic")
+    y = 1/(1 + exp(-theta[1] - theta[2]*x))
+  else if (model == "Log-logistic")
+    y = theta[1] + (1-theta[1])/(1+exp(-theta[2]-theta[3]*log(x)))
+  else if (model == "Weibull")
+    y = theta[1] + (1 - theta[1])*(1 - exp(-theta[3]*x^theta[2]))
+  else if (model == "Multistage 1")
+    y = theta[1] + (1-theta[1])*(1-exp(-theta[2]*x))
+  else if (model == "Multistage 2")
+    y = theta[1] + (1-theta[1])*(1-exp(-theta[2]*x - theta[3]*x^2))
+  else if (model == "Multistage 3")
+    y = theta[1] + (1-theta[1])*(1-exp(-theta[2]*x - theta[3]*x^2 - theta[4]*x^3))
+  else if (model == "Hill")
+    y = theta[1] + (theta[2]-theta[2]*theta[1])/(1+exp(-theta[3]-theta[4]*log(x)))
+  else if (model == "Logistic quadratic")
+    y = 1/(1 + exp(-theta[1] - theta[2]*x - theta[3]*x^2))
+  else if (model == "Logistic cubic")
+    y = 1/(1 + exp(-theta[1] - theta[2]*x - theta[3]*x^2 - theta[4]*x^3))
+  else if (model == "Logistic fractional polynomial")
+    y = x # don't understand how my code works
+  else if (model == "Mixture multistage")
+    y = theta[6]*(1-exp(-theta[1]-theta[2]*x-theta[3]*x^2)) + (1-theta[6])*(1-exp(-theta[1]-theta[4]*x - theta[5]*x^2))
+  else
+    y = x
+
+  # plot
+  p = ggplot2::ggplot(mapping = ggplot2::aes(y = y, x = x)) +
+    ggplot2::geom_line(color = "red") +
+    ggplot2::geom_hline(yintercept = 0) +
+    ggplot2::theme_bw() +
+    ggplot2::labs(title = "Dose response") +
+    ggplot2::xlab("dose") +
+    ggplot2::ylab("P(dose)")
+
+  return(p)
 }
 
 # checks if information matrix is invertible
