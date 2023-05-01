@@ -1072,8 +1072,8 @@ find_design_single = function(
   w = vars[(pts+1):(2*pts)]
 
   # collapse doses if weights are small
-  x = x[w > 1e-7]
-  w = w[w > 1e-7]
+  x = x[w > 1e-5]
+  w = w[w > 1e-5]
   result$result = c(x, w)
 
   M = M.nonlinear(x, w, theta, grad_fun)
@@ -1191,9 +1191,9 @@ find_bmd_design = function(
   x = vars[1:pts]
   w = vars[(pts+1):(2*pts)]
 
-  # collapse doses if weights < 1e-7
-  x = x[w > 1e-7]
-  w = w[w > 1e-7]
+  # collapse doses if weights < 1e-5
+  x = x[w > 1e-5]
+  w = w[w > 1e-5]
   result$result = c(x, w)
 
   M = M.nonlinear(x, w, theta, grad_fun)
