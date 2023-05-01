@@ -300,7 +300,7 @@ applied to construct a wide variety of domain specific objectives."
                                   Inf,
                                   1),
                      numericInput("pts",
-                                  "Design points",
+                                  "Max design points",
                                   2,
                                   1,
                                   10,
@@ -398,7 +398,7 @@ applied to construct a wide variety of domain specific objectives."
                                   Inf,
                                   1),
                      numericInput("pts_bmd",
-                                  "Design points",
+                                  "Max design points",
                                   2,
                                   1,
                                   10,
@@ -1070,6 +1070,12 @@ find_design_single = function(
   vars = result$result
   x = vars[1:pts]
   w = vars[(pts+1):(2*pts)]
+
+  # collapse doses if weights are small
+  x = x[w > 1e-6]
+  w = w[w > 1e-6]
+  result$result = c(x, w)
+
   M = M.nonlinear(x, w, theta, grad_fun)
   problem = list(bound = bound, obj = obj, theta = theta)
   p = plot_sens(x, w, problem, M, grad_fun)
@@ -1184,6 +1190,12 @@ find_bmd_design = function(
   vars = result$result
   x = vars[1:pts]
   w = vars[(pts+1):(2*pts)]
+
+  # collapse doses if weights < 1e-6
+  x = x[w > 1e-6]
+  w = w[w > 1e-6]
+  result$result = c(x, w)
+
   M = M.nonlinear(x, w, theta, grad_fun)
   problem = list(bound = bound, obj = "bmd", theta = theta, param = param)
   p = plot_sens(x, w, problem, M, grad_fun)
