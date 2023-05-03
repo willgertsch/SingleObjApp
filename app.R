@@ -348,7 +348,8 @@ applied to construct a wide variety of domain specific objectives."
           "Compare the efficiency of design \\(\\xi_1\\) relative to the
           design \\(\\xi_2\\). The efficiency is a number between 0 and 1 where
           a value close to 1 means that design 1 is nearly as good as design 2.
-          More information can found in the user manual tab.",
+          If the efficiency is greater than 1, it implies that design 1 is better
+          than design design 2",
           "The doses and weights may be obtained using the
           other tabs and entered as comma separated values. Alternatively, a real-world
           design can be entered to be checked against the optimal design. For more
@@ -368,7 +369,8 @@ applied to construct a wide variety of domain specific objectives."
               textInput("\\xi2_weights", "\\(\\xi_2 weights\\)")
             ),
             actionButton("compute_eff", "Compute efficiency"),
-            textOutput("eff_out")
+            #textOutput("eff_out"),
+            verbatimTextOutput("eff_out")
           )
         ),
         tabPanel("BMD Designs",
@@ -619,9 +621,11 @@ server = function(input, output, session) {
   )
 
   # display design efficiency
-  output$eff_out = renderText({
-    sprintf("The %s-efficiency of design 1 relative to design 2 is %s",
-            values$eff_crit[2], values$eff_crit[1])
+  output$eff_out = renderPrint({
+    # sprintf("The %s-efficiency of design 1 relative to design 2 is %s",
+    #         values$eff_crit[2], values$eff_crit[1])
+    cat("Criterion: ", values$eff_crit[2],
+        "\nEfficiency: ", values$eff_crit[1], "\n")
   })
 
   ##############################################################################
