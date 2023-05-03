@@ -254,7 +254,7 @@ applied to construct a wide variety of domain specific objectives."
              weighted combination of c and D-optimality. The compound criterion
              is
              $$
-             \\Psi_{CD}(M) = \\left[ \\text{eff}_D (M)\\right]^{1-\\lambda} \\left[\\text{eff}_c (M)\\right]^{\\lambda}
+             \\Psi_{CD}(M) = (1-\\lambda)\\log\\left[ \\text{eff}_D (M)\\right] + \\lambda \\log \\left[\\text{eff}_c (M)\\right]
              $$
              The weighting parameter \\(\\lambda\\) ranges between 0 and 1 and
              can be used to set how much the design deviates from the D-optimal
