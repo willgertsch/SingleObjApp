@@ -43,9 +43,9 @@ objectives = c(
 
 algorithms = c(
   "PSO",
-  "DE",
-  "GWO",
-  "HS"
+  "DE"
+  #"GWO",
+  #"HS"
 )
 
 bmd_models = c(
