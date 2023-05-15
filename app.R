@@ -76,6 +76,17 @@ ui = fixedPage(
           the app and the optimal design theory used to generate and interpret the results."
       ),
       tags$p(
+        "An optimal design for a dose-response experiment is a set of doses and
+        the proportion of subjects at each dose to efficiently fit a statistical model given a fixed sample size.
+        For example, we might want to find the best doses and dose allocation to estimate
+        a log-logistic model. The benefit of using an optimal design is the design
+        will maximize the information gained from the experiment. This can also
+        reduce the cost of the experiment since a well designed experiment with a
+        small number of subjects can be more effective than a bad experimental design
+        with a large sample size. For more information, see the optimal design reference
+        at the bottom of this tab."
+      ),
+      tags$p(
         "This app uses metaheuristic algorithms, which are a class of
           optimization methods that have been widely used
           to solve difficult problems. They are inspired by natural phenomena and simulate the
