@@ -78,7 +78,7 @@ ui = fixedPage(
       tags$p(
         "An optimal design for a dose-response experiment is a set of doses and
         the proportion of subjects at each dose to efficiently fit a statistical model given a fixed sample size.
-        For example, we might want to find the best doses and dose allocation to estimate
+        For example, we might want to find the best doses and subject allocation to estimate
         a log-logistic model. The benefit of using an optimal design is the design
         will maximize the information gained from the experiment. This can also
         reduce the cost of the experiment since a well designed experiment with a
@@ -91,10 +91,9 @@ ui = fixedPage(
           optimization methods that have been widely used
           to solve difficult problems. They are inspired by natural phenomena and simulate the
           behavior of a group of entities, such as animals, insects, or particles,
-          in search of an optimal solution. Some examples of metaheuristic algorithms
-          are Particle Swarm Optimization (PSO), Differential Evolution (DE),
-          Harmony Search (HS), and Grey Wolf Optimizer (GWO). They are especially useful in optimal
-          design of experiments because they can easily be applied to a wide variety
+          in search of an optimal solution. Two examples of metaheuristic algorithms
+          are Particle Swarm Optimization (PSO) and Differential Evolution (DE).
+          They are especially useful in optimal design of experiments because they can easily be applied to a wide variety
           of design problems."
       ),
       tags$h3("Design tab", style = "text-align:left;"),
@@ -113,10 +112,10 @@ ui = fixedPage(
           many doses will be allowed in the optimal design. If too few doses are
           specified, then the optimal design might be impossible to find. A general
           rule of thumb is that the number of doses in the optimal design should
-          be the same as the number of parameters in the model."
+          be equal to the number of parameters in the model."
       ),
       tags$p(
-        "The main pane alloes the user to select the model, parameter values,
+        "The main pane allows the user to select the model, parameter values,
           and the design objective. Theta values should be entered separated by
           commas, keeping in mind realistic bounds for the parameters.
           Pressing the find design button will run the selected algorithm
@@ -124,7 +123,7 @@ ui = fixedPage(
           graphical check of optimality.
           If plotted function is less than 0 with equality at the doses in the design,
           then the optimal design has been found. If the design is not optimal,
-          try rerunning with more iterations and a larger swarm size. A different
+          try re-running with more iterations and a larger swarm size. A different
           algorithm might also help to find the optimal design. If the plot displays
           a message about a singular information matrix, then there is likely a
           problem with how the design problem is specified. The most common issue
@@ -134,7 +133,7 @@ ui = fixedPage(
       tags$h3("Compare tab", style = "text-align:left;"),
       tags$p(
         "The compare tab allows the user to compare two designs to see which
-          is more efficient. This is especially useful when the goal is to compare
+          is more efficient. This is useful when comparing
           a naive or more practical design against the optimal design.
           Design 1 is compared relative to design design 2.
           If design 1 is less efficient, then the efficiency will be less than 1.
@@ -161,7 +160,7 @@ ui = fixedPage(
              type selector. It is also required to specify a risk increase between
              0 and 1. Values of 0.05 and 0.10 are common choices."),
       tags$p("The designs found in this tab are compound designs between c and D
-             optimality. The compound design is needed because a purely c-optimal
+             optimality. The compound design is needed because the c-optimal
              design for estimating the BMD is often inadequate for fitting the model.
              For more details, see the section on compound designs in the optimal
              design reference. The user must choose a value between 0 and 1
@@ -184,13 +183,13 @@ $$
 P(Y = 1| d) = P(d) = f(d, \\theta) + \\epsilon
 $$
 where \\(f\\) is a possibly nonlinear function of the dose and parameters \\(\\theta\\).
-The error term \\(\\epsilon\\) is most commonly assumed to have a normal distribution,
+The error term \\(\\epsilon\\) is assumed to have a normal distribution,
 \\(N(0, \\sigma^2)\\). Common forms of \\(f\\) include the exponential and inverse logit functions.
 
 The goal of optimal design is to choose good values for the doses included in the
 experiment and the number of subjects to assign to each dose. Let \\(d_i\\) denote the
 ith dose in the design and let \\(n_i\\) be the number of subjects assigned to the ith
-dose for \\(i = 1, \\dots, k\\).  For generalizability and theoretical convenience,
+dose for \\(i = 1, \\dots, k\\).  For theoretical convenience,
 we assume a fixed sample size \\(N\\) and work with the proportions assigned to each
 dose instead of the raw \\(n_i\\). Define \\(w_i\\) as \\(w_i = n_i/N\\) such that \\(\\sum_i^k w_i = 1\\).
 Using this weight-based notation, we can define a \\(k\\) dose design as a probability measure on \\([0, D]\\).
@@ -201,46 +200,41 @@ w_1, & \\dots, & w_k
 \\end{pmatrix}
 $$
 
-The design \\(\\xi\\) is a compact representation of all the parameters that must be
-chosen optimally in order to maximize some objective function.
-The most common objective functions in optimal design are based on the model information matrix,
-\\(M(\\xi, \\theta)\\). This information matrix can be thought of the potential observed
+The design \\(\\xi\\) contains all of the variables that must be
+chosen optimally in order to maximize a design objective function.
+Objective functions in optimal design are based on the model information matrix,
+\\(M(\\xi, \\theta)\\). This information matrix can be thought of as the observed
 information matrix if the experiment is run using the design \\(\\xi\\). Note that \\(M(\\xi, \\theta)\\)
 also depends on the parameter values of the model, meaning that a prior value for
-the parameters must be supplied. This value can come from previous data or theoretical
+the parameters is required. This value can come from previous data or theoretical
 models. The designs generated are referred to as \\(\\textit{locally optimal}\\) with
 respect to the prior \\(\\theta\\).
-
-For the nonlinear models under consideration, the information matrix can be written as
-$$
-M = M(\\xi, \\theta) = \\sum_{i=1}^k w_i M_i(\\xi, \\theta) = \\sum_{i=1}^k w_i \\nabla f(d_i, \\theta) (\\nabla f(d_i, \\theta))'
-$$
 "
       ),
       tags$h3("Objective functions", style = "text-align:left;"),
-      tags$p("Objective functions for optimal design are based around minimizing the
-          variance estimated quantities or, equivalently, maximizing information
-          gain of the experiment. For example, a common design strategy is to maximize
+      tags$p("Objective functions for optimal design are chosen to minimize the
+          variance of estimated quantities or, equivalently, to maximize the information
+          gain of the experiment. For example, a common design strategy is to minimize
 $$
-\\Psi_D(M) = \\log |M|
+\\Psi_D(M) = -\\log |M|.
 $$
-Maximizing \\(\\Psi_D\\) is equivalent to minimizing the size of the confidence
-region of the parameter estimates and a design that minimizes \\(\\Psi_D\\) is called
+Minimizing \\(\\Psi_D\\) is equivalent to minimizing the size of the confidence
+region of the parameter estimates. A design that minimizes \\(\\Psi_D\\) is called
 D-optimal. Another approach is to minimize the objective function
 $$
-\\Psi_A(M) = \\operatorname{tr} M^{-1}
+\\Psi_A(M) = \\operatorname{tr} M^{-1}.
 $$
 which is equivalent to minimizing the sum of the variances of the parameter estimates.
 Another useful objective function is
 $$
 \\Psi_c(M) = c'M^{-1}c
 $$
-which is minimized in order to minimize the variance of some linear combination
+which minimizes the variance of some linear combination
 of the parameters. The \\(\\Psi_c\\) objective is useful is because it can be
 applied to construct a wide variety of domain specific objectives."
              ),
       tags$h3("Design efficiency", style = "text-align:left;"),
-      tags$p("In order to make comparisons between different designs, it is useful to consider
+      tags$p("In order to make comparisons between designs, it is useful to consider
  efficiency relative to the optimal design. For example, we may wish to see how a
  naive design compares to the optimal design. In the case of D-optimality,
  let \\(\\xi_D\\) be the D-optimal design. The D-efficiency of a design \\(\\xi\\) is defined as
@@ -248,7 +242,9 @@ applied to construct a wide variety of domain specific objectives."
  \\operatorname{eff}_D(\\xi) = \\left(\\frac{|\\Psi_D(\\xi)|}{|\\Psi_D(\\xi_D)|}\\right)^{1/p}
  $$
  where \\(p\\) is the number of parameters in the model. Similar efficiency functions
- may be derived for the other optimality criteria."),
+ exist for the other optimality criteria. The design efficiency that takes a value
+             between 0 and 1, with values close to 1 signifying the design is close
+             to optimal."),
       tags$h3("Equivalence theorem", style = "text-align:left;"),
       tags$p("A final useful tool for optimal design is the equivalence theorem of Kiefer (1960).
  This theorem says that if a design \\(\\xi\\) is optimal, then the directional
