@@ -29,8 +29,8 @@ models = c(
   "Hill",
   "Logistic quadratic",
   "Logistic cubic",
-  "Logistic fractional polynomial",
-  "Mixture multistage"
+  "Logistic fractional polynomial"
+  #"Mixture multistage"
   #"Box-Cox Weibull"
  # "Probit",
  # "Log-probit"
