@@ -446,7 +446,7 @@ applied to construct a wide variety of domain specific objectives."
                        column(
                          6,
                          textInput("theta_input_bmd", "Theta ( enter values separated by , )"),
-                         numericInput("lambda_input", "\\(\\lambda\\) (weight parameter for D vs. c optimality)",
+                         numericInput("lambda_input", "\\(\\lambda\\) (weight parameter for c vs. D optimality)",
                                       value = 0.5, min = 0, max = 1, step = 0.1)
                        )
                      ),
