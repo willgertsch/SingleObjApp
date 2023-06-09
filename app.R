@@ -1446,13 +1446,13 @@ check_bounds = function(model, theta) {
 
   # being very generous on beta coefficient ranges
   if (model == "Logistic") {
-    if (theta[1] < -18 | theta[1] > 18)
+    if (theta[1] < -20 | theta[1] > 20)
       return(FALSE)
     if (theta[2] < -100 | theta[2] > 100)
       return(FALSE)
   }
   else if (model == "Logistic quadratic") {
-    if (theta[1] < -18 | theta[1] > 18)
+    if (theta[1] < -20 | theta[1] > 20)
       return(FALSE)
     if (theta[2] < -100 | theta[2] > 100)
       return(FALSE)
@@ -1460,7 +1460,7 @@ check_bounds = function(model, theta) {
       return(FALSE)
   }
   else if (model == "Logistic cubic") {
-    if (theta[1] < -18 | theta[1] > 18)
+    if (theta[1] < -20 | theta[1] > 20)
       return(FALSE)
     if (theta[2] < -100 | theta[2] > 100)
       return(FALSE)
@@ -1470,7 +1470,7 @@ check_bounds = function(model, theta) {
       return(FALSE)
   }
   else if (model == "Logistic fractional polynomial") {
-    if (theta[1] < -18 | theta[1] > 18)
+    if (theta[1] < -20 | theta[1] > 20)
       return(FALSE)
     if (theta[2] < -100 | theta[2] > 100)
       return(FALSE)
@@ -1480,7 +1480,7 @@ check_bounds = function(model, theta) {
   else if (model == "Weibull") {
     if (theta[1] < 0 | theta[1] >= 1)
       return(FALSE)
-    if (theta[2] <= 0 | theta[2] > 18)
+    if (theta[2] <= 0 | theta[2] > 20)
       return(FALSE)
     if (theta[3] <= 0 | theta[3] > 100)
       return(FALSE)
@@ -1488,9 +1488,9 @@ check_bounds = function(model, theta) {
   else if (model == "Log-logistic") {
     if (theta[1] < 0 | theta[1] >= 1)
       return(FALSE)
-    if (theta[2] < -18 | theta[2] > 18)
+    if (theta[2] < -20 | theta[2] > 20)
       return(FALSE)
-    if (theta[3] <= 0 | theta[3] > 18)
+    if (theta[3] <= 0 | theta[3] > 20)
       return(FALSE)
   }
   else if (model == "Mixture multistage") {
@@ -1513,11 +1513,11 @@ check_bounds = function(model, theta) {
   else if (model == "Hill") {
     if (theta[1] < 0 | theta[1] >= 1)
       return(FALSE)
-    if (theta[2] < -18 | theta[2] > 18)
+    if (theta[2] < -20 | theta[2] > 20)
       return(FALSE)
-    if (theta[3] < -18 | theta[3] > 18)
+    if (theta[3] < -20 | theta[3] > 20)
       return(FALSE)
-    if (theta[4] < 0 | theta[4] > 18)
+    if (theta[4] < 0 | theta[4] > 20)
       return(FALSE)
   }
   else if (model == "Multistage 1") {
@@ -1546,17 +1546,17 @@ check_bounds = function(model, theta) {
       return(FALSE)
   }
   else if (model == "Probit") {
-    if (theta[1] < -18 | theta[1] > 18)
+    if (theta[1] < -20 | theta[1] > 20)
       return(FALSE)
-    if (theta[2] <= 0 | theta[2] > 18)
+    if (theta[2] <= 0 | theta[2] > 20)
       return(FALSE)
   }
   else if (model == "Log-probit") {
     if (theta[1] < 0 | theta[1] >= 1)
       return(FALSE)
-    if (theta[2] < -18 | theta[2] > 18)
+    if (theta[2] < -20 | theta[2] > 20)
       return(FALSE)
-    if (theta[3] <= 0 | theta[3] > 18)
+    if (theta[3] <= 0 | theta[3] > 20)
       return(FALSE)
   }
 
