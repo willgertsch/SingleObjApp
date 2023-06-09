@@ -51,7 +51,8 @@ algorithms = c(
 bmd_models = c(
   "Logistic",
   "Weibull",
-  "Log-logistic"
+  "Log-logistic",
+  "Hill"
 )
 
 ################################################################################
@@ -1142,7 +1143,7 @@ find_bmd_design = function(
     iter,
     seed
 ) {
-
+  #browser()
   # select gradient functions
   if (model == "Logistic") {
     grad_fun = grad.logistic
@@ -1171,6 +1172,16 @@ find_bmd_design = function(
     }
     else if (risk_type == "Extra") {
       bmd_grad = bmdgrad.loglogistic.extra
+    }
+  }
+  else if (model == "Hill") {
+    grad_fun = grad.hill
+
+    if (risk_type == "Added") {
+      bmd_grad = bmdgrad.hill.add
+    }
+    else if (risk_type == "Extra") {
+      bmd_grad = bmdgrad.hill.extra
     }
   }
 
@@ -1787,6 +1798,44 @@ bmdgrad.loglogistic.extra = function(r, theta) {
   g2 = -exp((log(r/(1-r))-a)/b)/b
   g3 = exp(-a/b) * (r/(1-r))^(1/b) * (a - log(r/(1-r))) / b^2
   return(c(g1,g2,g3))
+}
+
+bmdgrad.hill.add = function(r, theta) {
+
+  g = theta[1]
+  v = theta[2]
+  a = theta[3]
+  b = theta[4]
+
+  t1 = exp(-a/b)
+  t2 = ((g*r*v-g*v-r+v)/(r-g*r*v))^(-1/b)
+  t3 = r*(g*v-1)-g*v+v
+
+  g1 = (v-1)*v*t1*t2/(b*(g*v-1)*t3)
+  g2 = -(g-1)*t1*t2/(b*(g*v-1)*t3)
+  g3 = -t1*t2/b
+  g4 = -(-a-log((g*r*v-g*v-r+v)/(r*(1-g*v))))*(exp((-a-log((g*r*v-g*v-r+v)/(r-g*r*v)))/(b)))/(b^2)
+  return(c(g1, g2, g3, g4))
+
+}
+
+bmdgrad.hill.extra = function(r, theta) {
+
+  g = theta[1]
+  v = theta[2]
+  a = theta[3]
+  b = theta[4]
+
+  t1 = exp(-a/b)
+  t2 = (-(g*v+r-v)/(r))^(1/b)
+  t3 = b*((g-1)*v+r)
+
+  g1 = v*t1*t2/t3
+  g2 = (g-1)*t1*t2/t3
+  g3 = supressWarnings(-exp((log(-(g*v+r-v)/r)-a)/b)/b)
+  g4 = t1*t2 * (a - log(-(g*v+r-v)/(r))) / (b^2)
+  return(c(g1,g2,g3,g4))
+
 }
 
 
