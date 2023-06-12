@@ -22,6 +22,8 @@ library(metaheuristicOpt)
 models = c(
   "Logistic",
   "Log-logistic",
+  "Probit",
+  "Log-probit",
   "Weibull",
   "Multistage 1",
   "Multistage 2",
@@ -29,11 +31,9 @@ models = c(
   "Hill",
   "Logistic quadratic",
   "Logistic cubic",
-  "Logistic fractional polynomial",
+  "Logistic fractional polynomial"
   #"Mixture multistage"
   #"Box-Cox Weibull"
-  "Probit"
- # "Log-probit"
 )
 
 objectives = c(
@@ -1613,6 +1613,8 @@ plot_response = function(model, theta, limit) {
     y = theta[6]*(1-exp(-theta[1]-theta[2]*x-theta[3]*x^2)) + (1-theta[6])*(1-exp(-theta[1]-theta[4]*x - theta[5]*x^2))
   else if (model == "Probit")
     y = pnorm(theta[1] + theta[2]*x)
+  else if (model == "Log-probit")
+    y = theta[1] + (1-theta[1])*pnorm(theta[2] + theta[3]*log(x))
   else
     y = x
 
