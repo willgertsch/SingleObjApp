@@ -29,10 +29,10 @@ models = c(
   "Hill",
   "Logistic quadratic",
   "Logistic cubic",
-  "Logistic fractional polynomial"
+  "Logistic fractional polynomial",
   #"Mixture multistage"
   #"Box-Cox Weibull"
- # "Probit",
+  "Probit"
  # "Log-probit"
 )
 
@@ -956,7 +956,7 @@ grad.probit = function(x, theta) {
   b = theta[2]
 
   g1 = 1/sqrt(2*pi)*exp(-(a+b*x)^2/2)
-  g2 = 1/sqrt(2*pi)*exp(-(a+b*x)^2/2) * b
+  g2 = 1/sqrt(2*pi)*exp(-(a+b*x)^2/2) * x
   return(c(g1, g2))
 }
 
@@ -1611,6 +1611,8 @@ plot_response = function(model, theta, limit) {
   }
   else if (model == "Mixture multistage")
     y = theta[6]*(1-exp(-theta[1]-theta[2]*x-theta[3]*x^2)) + (1-theta[6])*(1-exp(-theta[1]-theta[4]*x - theta[5]*x^2))
+  else if (model == "Probit")
+    y = pnorm(theta[1] + theta[2]*x)
   else
     y = x
 
