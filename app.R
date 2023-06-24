@@ -131,6 +131,11 @@ ui = fixedPage(
           is that the number of doses is too few. Another common issue is that
           the dose range may be too small for the model in question."
       ),
+      tags$p(
+        "Some example theta values are shown for each model. These parameter values
+        were obtained by fitting the models to data from Table 3 from Haber et. al. (2018).
+        Models were fit using R and the EPA's Benchmark Dose Software."
+      ),
       tags$h3("Compare tab", style = "text-align:left;"),
       tags$p(
         "The compare tab allows the user to compare two designs to see which
