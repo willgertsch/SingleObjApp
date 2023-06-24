@@ -309,7 +309,7 @@ applied to construct a wide variety of domain specific objectives."
                                   1),
                      numericInput("pts",
                                   "Max design points",
-                                  2,
+                                  3,
                                   1,
                                   10,
                                   1),
