@@ -303,7 +303,7 @@ applied to construct a wide variety of domain specific objectives."
                                   10),
                      numericInput("bound",
                                   "Dose limit",
-                                  10,
+                                  30,
                                   0.1,
                                   Inf,
                                   1),
