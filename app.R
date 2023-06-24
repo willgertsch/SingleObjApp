@@ -404,13 +404,13 @@ applied to construct a wide variety of domain specific objectives."
                                   10),
                      numericInput("bound_bmd",
                                   "Dose limit",
-                                  10,
+                                  30,
                                   0.1,
                                   Inf,
                                   1),
                      numericInput("pts_bmd",
                                   "Max design points",
-                                  2,
+                                  3,
                                   1,
                                   10,
                                   1),
@@ -451,6 +451,7 @@ applied to construct a wide variety of domain specific objectives."
                        )
                      ),
                      uiOutput("model_formula_display_bmd"),
+                     uiOutput("example_theta_bmd"),
                      actionButton("find_bmd", "Find design"),
                      actionButton("plot_response_bmd", "Plot Response"),
                      plotOutput("sens_plot_bmd"),
@@ -491,9 +492,11 @@ server = function(input, output, session) {
     p(withMathJax(model_display(input$model_selector)))
   })
 
+  # display of example local parameters
   output$example_theta = renderUI({
     p(withMathJax(display_example_param(input$model_selector)))
   })
+
 
   # sensitivity plot
   output$sens_plot = renderPlot({
@@ -656,6 +659,11 @@ server = function(input, output, session) {
   # display model formula
   output$model_formula_display_bmd = renderUI({
     p(withMathJax(model_display(input$model_selector_bmd)))
+  })
+
+  # example theta values
+  output$example_theta_bmd = renderUI({
+    p(withMathJax(display_example_param(input$model_selector_bmd)))
   })
 
   # sensitivity plot
@@ -1472,7 +1480,7 @@ display_example_param = function(model) {
   else if (model == "Quantal linear")
     "EX: \\(\\theta\\) = (0.05307, 0.04929)"
   else if (model == "Weibull")
-    "EX: \\(\\theta\\) = (0.05307, 1, 0.04929)"
+    "EX: \\(\\theta\\) = (0.05307, .99, 0.04929)"
   else if (model == "Multistage 1")
     "EX: \\(\\theta\\) = (0.05307, 0.04929)"
   else if (model == "Multistage 2")
