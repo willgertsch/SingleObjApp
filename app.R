@@ -30,8 +30,8 @@ models = c(
   "Multistage 3",
   "Hill",
   "Logistic quadratic",
-  "Logistic cubic",
-  "Logistic fractional polynomial"
+  "Logistic cubic"
+  #"Logistic fractional polynomial"
   #"Mixture multistage"
   #"Box-Cox Weibull"
 )
