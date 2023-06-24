@@ -343,7 +343,7 @@ applied to construct a wide variety of domain specific objectives."
                        )
                      ),
                      uiOutput("model_formula_display"),
-
+                     uiOutput("example_theta"),
                      actionButton("find", "Find design"),
                      actionButton("plot_response", "Plot response"),
                      plotOutput("sens_plot"),
@@ -489,6 +489,10 @@ server = function(input, output, session) {
   # display model formula
   output$model_formula_display = renderUI({
     p(withMathJax(model_display(input$model_selector)))
+  })
+
+  output$example_theta = renderUI({
+    p(withMathJax(display_example_param(input$model_selector)))
   })
 
   # sensitivity plot
@@ -1443,6 +1447,44 @@ model_display = function(model) {
 
 }
 
+# displays example local theta values
+# model: string from model selector
+# returns: string to be displayed by Shiny ui element
+display_example_param = function(model) {
+
+  if (model == "Hill")
+    "EX: \\(\\theta\\) = (0.02201, 0.9034, -2.132, 1)"
+  else if (model == "Logistic")
+    "EX: \\(\\theta\\) = (-1.710, 0.09703)"
+  else if (model == "Logistic quadratic")
+    "EX: \\(\\theta\\) = (-2.52, 0.26, -0.006)"
+  else if (model == "Logistic cubic")
+    "EX: \\(\\theta\\) = (-3.91, 1.56, -0.18, 0.004)"
+  else if (model == "Logistic fractional polynomial") {
+    "EX: \\(\\theta\\) = ()"
+  }
+  else if (model == "Log-logistic")
+    "EX: \\(\\theta\\) = (0.02461, -2.390, 1)"
+  else if (model == "Log-probit")
+    "EX: \\(\\theta\\) = (0.02051, -1.237, 0.5173)"
+  else if (model == "Probit")
+    "EX: \\(\\theta\\) = (-1.051, 0.05948)"
+  else if (model == "Quantal linear")
+    "EX: \\(\\theta\\) = (0.05307, 0.04929)"
+  else if (model == "Weibull")
+    "EX: \\(\\theta\\) = (0.05307, 1, 0.04929)"
+  else if (model == "Multistage 1")
+    "EX: \\(\\theta\\) = (0.05307, 0.04929)"
+  else if (model == "Multistage 2")
+    "EX: \\(\\theta\\) = (0.05307, 0.04929, 0)"
+  else if (model == "Multistage 3")
+    "EX: \\(\\theta\\) = (0.05307, 0.04929, 0, 0)"
+  else
+    "EX: \\(\\theta\\) = "
+
+
+}
+
 # convert raw text input to a vector of parameter values
 # pulling this out into its own function because input checking could be complex
 # useful in multiple places where there is text input
@@ -1848,3 +1890,4 @@ bmdgrad.hill.extra = function(r, theta) {
 # Run the application
 ################################################################################
 shinyApp(ui = ui, server = server)
+
