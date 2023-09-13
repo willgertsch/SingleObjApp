@@ -601,6 +601,13 @@ server = function(input, output, session) {
       # save ordered doses and weights
       values$OD$x = x[order(x)]
       values$OD$w = w[order(x)]
+
+      # give example for a finite sample size
+      n = 50
+      cat('Allocations for n = ', n, ":\n", sep = '')
+      cat(round(w[order(x)] * n), sep = ' ')
+
+
     }
   })
 
@@ -780,6 +787,11 @@ server = function(input, output, session) {
       # save ordered doses and weights
       values$OD2$x = x[order(x)]
       values$OD2$w = w[order(x)]
+
+      # give example for a finite sample size
+      n = 50
+      cat('Allocations for n = ', n, ":\n", sep = '')
+      cat(round(w[order(x)] * n), sep = ' ')
     }
   })
 
