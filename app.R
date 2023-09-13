@@ -595,8 +595,8 @@ server = function(input, output, session) {
       l = length(raw)
       x = raw[1:(l/2)]
       w = raw[(l/2 + 1):l]
-      cat("Doses:\n", x[order(x)], "\n", sep = " ")
-      cat("Weights:\n", w[order(x)], "\n", sep = " ")
+      cat("Doses:\n", signif(x[order(x)], 3), "\n", sep = " ")
+      cat("Weights:\n", round(w[order(x)], 3), "\n", sep = " ")
 
       # save ordered doses and weights
       values$OD$x = x[order(x)]
@@ -774,8 +774,8 @@ server = function(input, output, session) {
       l = length(raw)
       x = raw[1:(l/2)]
       w = raw[(l/2 + 1):l]
-      cat("Doses:\n", x[order(x)], "\n", sep = " ")
-      cat("Weights:\n", w[order(x)], "\n", sep = " ")
+      cat("Doses:\n", signif(x[order(x)], 3), "\n", sep = " ")
+      cat("Weights:\n", round(w[order(x)], 3), "\n", sep = " ")
 
       # save ordered doses and weights
       values$OD2$x = x[order(x)]
