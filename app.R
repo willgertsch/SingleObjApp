@@ -30,7 +30,8 @@ models = c(
   "Multistage 3",
   "Hill",
   "Logistic quadratic",
-  "Logistic cubic"
+  "Logistic cubic",
+  "4 parameter log-logistic"
   #"Logistic fractional polynomial"
   #"Mixture multistage"
   #"Box-Cox Weibull"
@@ -1003,6 +1004,26 @@ grad.logprobit = function(x, theta) {
   return(c(g1, g2, g3))
 }
 
+# 4 parameter logistic
+# P(x) = g + (c - g)/(1 + exp(-a - b * log(x)))
+grad.loglogistic4 = function(x, theta) {
+
+  g = theta[1]
+  a = theta[2]
+  b = theta[3]
+  c = theta[4]
+
+  g1 = 1 / (exp(a) * x^b + 1)
+  g2 = (c - g) * exp(-a-b*log(x)) / (exp(-a-b*log(x)) + 1)^2
+  g3 = (c - g) * exp(-a-b*log(x)) * log(x) / (exp(-a-b*log(x)) + 1)^2
+  g4 = 1 / (exp(-a) * x^(-b) + 1)
+  return(c(g1, g2, g3, g4))
+}
+
+
+################################################################################
+# Objective functions
+################################################################################
 # D optimality
 # maximize logdetM
 obj.D = function(M, param) {
@@ -1467,6 +1488,8 @@ model_display = function(model) {
     "$$P(d) = \\phi(\\theta_1 + \\theta_2 d)$$"
   else if (model == "Log-probit")
     "$$P(d) = \\theta_1 + (1-\\theta_1) \\phi(\\theta_2 + \\theta_3 * \\log(d))$$"
+  else if (model == "4 parameter log-logistic")
+    "$$P(d) = \\theta_1 + \\frac{(\\theta_4 - \\theta_1)}{1 + \\exp(-\\theta_2 - \\theta_3 \\log(d))}$$"
   else
     "Model not supported"
 
@@ -1504,6 +1527,8 @@ display_example_param = function(model) {
     "EX: \\(\\theta\\) = (0.05307, 0.04929, 0)"
   else if (model == "Multistage 3")
     "EX: \\(\\theta\\) = (0.05307, 0.04929, 0, 0)"
+  else if (model == '4 parameter log-logistic')
+    'EX: \\(\\theta\\) = (1.01, -2.93, 0.54, 140.09)'
   else
     "EX: \\(\\theta\\) = "
 
@@ -1682,6 +1707,8 @@ plot_response = function(model, theta, limit) {
     y = pnorm(theta[1] + theta[2]*x)
   else if (model == "Log-probit")
     y = theta[1] + (1-theta[1])*pnorm(theta[2] + theta[3]*log(x))
+  else if (model == "4 parameter log-logistic")
+    y = theta[1] + (theta[4] - theta[1])/(1 + exp(-theta[2] - theta[3]*log(x)))
   else
     y = x
 
@@ -1794,6 +1821,8 @@ grad_selector = function(model) {
     grad_fun = grad.probit
   else if (model == "Log-probit")
     grad_fun = grad.logprobit
+  else if (model == "4 parameter log-logistic")
+    grad_fun = grad.loglogistic4
 
   return(grad_fun)
 }
