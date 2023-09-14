@@ -215,7 +215,9 @@ information matrix if the experiment is run using the design \\(\\xi\\). Note th
 also depends on the parameter values of the model, meaning that a prior value for
 the parameters is required. This value can come from previous data or theoretical
 models. The designs generated are referred to as \\(\\textit{locally optimal}\\) with
-respect to the prior \\(\\theta\\).
+respect to \\(\\theta\\), meaning that the design is only optimal if \\(\\theta\\)
+is the true value. In light of this fact, sensitivity analyses should be performed
+to see how variation in \\(\\theta\\) might affect the design.
 "
       ),
       tags$h3("Objective functions", style = "text-align:left;"),
@@ -334,7 +336,9 @@ applied to construct a wide variety of domain specific objectives."
                      from dedicated model fitting software or
                      from published results. Check that the theta values have been
                      entered correctly by plotting the response. Once the theta values have been entered,
-                     the design can be found by using the find design button. For
+                     the design can be found by using the find design button. Note
+                     that these designs are locally optimal with respect to theta
+                     and will not be optimal if theta is misspecified. For
                      more information on how to use the other options and tips, refer to
                      the design tab section in the user manual tab.",
                      fluidRow(
@@ -1394,7 +1398,7 @@ plot_sens = function(x, w, problem, M, grad_fun) {
       ggplot2::xlab("x") +
       ggplot2::ylab("ch(x)") +
       ggplot2::annotate("text", x = mean(xvals), y = 0.5,
-                        label = "Singular information matrix", size = 5)
+                        label = "Singular information matrix, try increasing max design points.", size = 5)
   }
   else if (sum(yvals - 2, na.rm = T) == 0) {
     p = ggplot2::ggplot(mapping = ggplot2::aes(y = yvals, x = xvals)) +
