@@ -379,13 +379,13 @@ applied to construct a wide variety of domain specific objectives."
           fluidRow(
             column(
               6,
-              textInput("\\xi1_doses", "\\(\\xi_1 doses\\)"),
-              textInput("\\xi1_weights", "\\(\\xi_1 weights\\)")
+              textInput("\\xi1_doses", "Design 1 doses"),
+              textInput("\\xi1_weights", "Design 1 weights")
             ),
             column(
               6,
-              textInput("\\xi2_doses", "\\(\\xi_2 doses\\)"),
-              textInput("\\xi2_weights", "\\(\\xi_2 weights\\)")
+              textInput("\\xi2_doses", "Design 2 doses"),
+              textInput("\\xi2_weights", "Design 2 weights")
             ),
             actionButton("compute_eff", "Compute efficiency"),
             #textOutput("eff_out"),
