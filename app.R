@@ -356,6 +356,7 @@ applied to construct a wide variety of domain specific objectives."
                      uiOutput("example_theta"),
                      actionButton("find", "Find design"),
                      actionButton("plot_response", "Plot response"),
+                     checkboxInput("log_dose_check", "Log dose"),
                      plotOutput("sens_plot"),
                      waiter::use_waiter(),
                      verbatimTextOutput("design_out"),
@@ -464,6 +465,7 @@ applied to construct a wide variety of domain specific objectives."
                      uiOutput("example_theta_bmd"),
                      actionButton("find_bmd", "Find design"),
                      actionButton("plot_response_bmd", "Plot Response"),
+                     checkboxInput("log_dose_check_bmd", "Log dose"),
                      plotOutput("sens_plot_bmd"),
                      waiter::use_waiter(),
                      verbatimTextOutput("design_out_bmd"),
@@ -578,7 +580,7 @@ server = function(input, output, session) {
       model = input$model_selector
       theta = process_theta(input$theta_input)
       values$OD$sens_plot = plot_response(model, theta,
-                                          input$bound)
+                                          input$bound, input$log_dose_check)
     }
   )
 
@@ -764,7 +766,7 @@ server = function(input, output, session) {
       model = input$model_selector_bmd
       theta = process_theta(input$theta_input_bmd)
       values$OD2$sens_plot = plot_response(model, theta,
-                                          input$bound_bmd)
+                                          input$bound_bmd, input$log_dose_check_bmd)
     }
   )
 
@@ -1675,11 +1677,14 @@ check_bounds = function(model, theta) {
 # model: string name of dose response model
 # theta: vector of model parameter values
 # limit: dose limit, will control how much of the dose response function is shown
+# log_dose: if true transform the x-axis
 # returns: a ggplot of the dose response function
-plot_response = function(model, theta, limit) {
+plot_response = function(model, theta, limit, log_dose = F) {
 
   # generate dose levels
   x = seq(0, limit, length.out=100)
+  if (log_dose)
+    x = log(x)
 
   # compute response using appropriate model function
   if (model == "Logistic")
@@ -1717,12 +1722,16 @@ plot_response = function(model, theta, limit) {
     y = x
 
   # plot
+  if (log_dose)
+    xlabel = "log dose"
+  else
+    xlabel = 'dose'
   p = ggplot2::ggplot(mapping = ggplot2::aes(y = y, x = x)) +
     ggplot2::geom_line(color = "red") +
     ggplot2::geom_hline(yintercept = 0) +
     ggplot2::theme_bw() +
     ggplot2::labs(title = "Dose response") +
-    ggplot2::xlab("dose") +
+    ggplot2::xlab(xlabel) +
     ggplot2::ylab("P(dose)")
 
   return(p)
