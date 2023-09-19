@@ -1420,9 +1420,9 @@ plot_sens = function(x, w, problem, M, grad_fun) {
       #ggplot2::geom_point(aes(x = design_points, y = pts_ch), col = "red", size = 3) +
       ggplot2::geom_vline(xintercept = x, color = "red", linetype = "dashed") +
       ggplot2::theme_bw() +
-      ggplot2::labs(title = "Equivalence Theorem Check") +
-      ggplot2::xlab("x") +
-      ggplot2::ylab("ch(x)")
+      ggplot2::labs(title = "Optimality check", subtitle = 'Is the blue line equal to 0 at the selected doses (red lines) and less than 0 everywhere else?') +
+      ggplot2::xlab("dose") +
+      ggplot2::ylab("directional derivative")
   }
 
 
