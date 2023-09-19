@@ -365,13 +365,13 @@ applied to construct a wide variety of domain specific objectives."
                  )),
         tabPanel(
           "Compare",
-          "Compare the efficiency of design \\(\\xi_1\\) relative to the
-          design \\(\\xi_2\\). The efficiency is a number between 0 and 1 where
+          "Compare the efficiency of design 1 relative to the
+          design 2. The efficiency is a number between 0 and 1 where
           a value close to 1 means that design 1 is nearly as good as design 2.
           If the efficiency is greater than 1, it implies that design 1 is better
           than design design 2",
           "The doses and weights may be obtained using the
-          other tabs and entered as comma separated values. Design \\(\\xi_2\\) may
+          other tabs and entered as comma separated values. Design 2 may
           also be filled by using the copy button in the design tabs. For more
           information, refer to the compare tab section in the user manual tab.",
           selectInput("model_selector_compare", "Model", models),
