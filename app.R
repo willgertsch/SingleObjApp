@@ -466,6 +466,7 @@ applied to construct a wide variety of domain specific objectives."
                      actionButton("find_bmd", "Find design"),
                      actionButton("plot_response_bmd", "Plot Response"),
                      checkboxInput("log_dose_check_bmd", "Log dose"),
+                     checkboxInput('compute_Deff', 'Compute D-efficiency'),
                      plotOutput("sens_plot_bmd"),
                      waiter::use_waiter(),
                      verbatimTextOutput("design_out_bmd"),
@@ -665,6 +666,7 @@ server = function(input, output, session) {
 
   ##############################################################################
   # BMD design tab
+  ##############################################################################
   # set up reactive data structure
   # initialize with empty arrays and plots
   values$OD2 <- list(
@@ -672,7 +674,8 @@ server = function(input, output, session) {
     x = numeric(),
     w = numeric(),
     sens_plot = ggplot2::ggplot(),
-    msg = character()
+    msg = character(),
+    Deff = NA
   )
 
   # display model formula
@@ -745,6 +748,55 @@ server = function(input, output, session) {
         values$OD2$sens_plot = out$plot
         #values$OD$response_plot = response_plot
         values$OD2$val = out$result$optimumValue
+
+        # compute D-efficiency if box if checked
+        if (input$compute_Deff) {
+          #browser()
+          # find D-optimal design
+          # current algorithm choices should be good enough to find the design
+          # grab and process theta from raw input
+          theta = process_theta(input$theta_input_bmd)
+
+          # check model bounds
+          model = input$model_selector_bmd
+          if (check_bounds(model, theta)) {
+            # select gradient function
+            grad_fun = grad_selector(model)
+
+            # find optimal design
+            out = find_design_single(
+              grad_fun,
+              'D',
+              theta,
+              input$bound_bmd,
+              input$pts_bmd,
+              input$algorithm_bmd,
+              input$swarm_bmd,
+              input$iter_bmd,
+              input$seed_bmd
+            )$result$result
+
+            # process
+            l = length(values$OD2$design)
+            x = values$OD2$design[1:(l/2)]
+            w = values$OD2$design[(l/2 + 1):l]
+
+            l_d = length(out)
+            x_d = out[1:(l_d/2)]
+            w_d = out[(l_d/2 + 1):l_d]
+
+            # compute D efficiency and save to reactive
+            values$OD2$Deff = compute_eff(
+              model,
+              theta,
+              'D',
+              d1 = x,
+              d2 = x_d,
+              w1 = w,
+              w2 = w_d
+            )
+          }
+        }
       }
       else {
         # show error message in plot
@@ -799,6 +851,7 @@ server = function(input, output, session) {
       n = 50
       cat('Allocations for n = ', n, ":\n", sep = '')
       cat(round(w[order(x)] * n), sep = ' ')
+      cat("\nD-efficiency:", values$OD2$Deff)
     }
   })
 
