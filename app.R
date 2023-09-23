@@ -851,7 +851,7 @@ server = function(input, output, session) {
       n = 50
       cat('Allocations for n = ', n, ":\n", sep = '')
       cat(round(w[order(x)] * n), sep = ' ')
-      cat("\nD-efficiency:", values$OD2$Deff)
+      cat("\nD-efficiency:", round(values$OD2$Deff, 2))
     }
   })
 
