@@ -612,8 +612,9 @@ server = function(input, output, session) {
 
       # give example for a finite sample size
       n = 50
-      cat('Allocations for n = ', n, ":\n", sep = '')
-      cat(round(w[order(x)] * n), sep = ' ')
+      cat('Example allocations for n <= ', n, ":\n", sep = '')
+      #cat(round(w[order(x)] * n), sep = ' ')
+      cat(floor(w[order(x)] * n), sep = ' ')
 
 
     }
