@@ -1737,8 +1737,19 @@ plot_response = function(model, theta, limit, log_dose = F) {
 
   # generate dose levels
   x = seq(0, limit, length.out=100)
-  if (log_dose)
+  if (log_dose) {
+    # fill in some values close to 0
+    x = c(x, seq(0.001, .1, by = .001))
+
     x = log(x)
+
+    # remove any infinite values
+    x = x[!is.infinite(log(x))]
+
+
+  }
+
+
 
   # compute response using appropriate model function
   if (model == "Logistic")
@@ -1776,17 +1787,23 @@ plot_response = function(model, theta, limit, log_dose = F) {
     y = x
 
   # plot
-  if (log_dose)
+  if (log_dose) {
     xlabel = "log dose"
-  else
+    xlim = 1
+  }
+  else {
     xlabel = 'dose'
+    xlim = 0
+  }
+
   p = ggplot2::ggplot(mapping = ggplot2::aes(y = y, x = x)) +
     ggplot2::geom_line(color = "red") +
     ggplot2::geom_hline(yintercept = 0) +
     ggplot2::theme_bw() +
     ggplot2::labs(title = "Dose response") +
     ggplot2::xlab(xlabel) +
-    ggplot2::ylab("P(dose)")
+    ggplot2::ylab("P(dose)")+
+    ggplot2::xlim(xlim, NA)
 
   return(p)
 }
