@@ -1217,6 +1217,10 @@ compute_eff = function(
     w2
 ) {
 
+  # normalize user submitted weights
+  w1 = w1/sum(w1)
+  w2 = w2/sum(w2)
+
 
   # select gradient function
   grad_fun = grad_selector(model)
