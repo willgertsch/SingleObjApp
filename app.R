@@ -629,7 +629,9 @@ server = function(input, output, session) {
       n = input$N
       cat('Suggested allocations for N = ', n, ":\n", sep = '')
       #cat(round(w[order(x)] * n), sep = ' ')
-      cat(floor(w[order(x)] * n), sep = ' ')
+      # last sample size N-1 to make allocations sum to N
+      ns = round(w[order(x)] * n)[-length(w)]
+      cat(c(ns, n - sum(ns)), sep = ' ')
 
 
     }
@@ -866,7 +868,10 @@ server = function(input, output, session) {
       # give example for a finite sample size
       n = input$N_bmd
       cat('Suggested allocations for N = ', n, ":\n", sep = '')
-      cat(floor(w[order(x)] * n), sep = ' ')
+      #cat(floor(w[order(x)] * n), sep = ' ')
+      # last sample size N-1 to make allocations sum to N
+      ns = round(w[order(x)] * n)[-length(w)]
+      cat(c(ns, n - sum(ns)), sep = ' ')
       cat("\nD-efficiency:", round(values$OD2$Deff, 2))
     }
   })
