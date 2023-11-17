@@ -326,7 +326,14 @@ applied to construct a wide variety of domain specific objectives."
                                   155,
                                   1,
                                   Inf,
-                                  1)
+                                  1),
+                     numericInput(
+                       "N",
+                       "N",
+                       min = 1,
+                       max = 1000,
+                       value = 50
+                     )
 
                    ),
                    mainPanel(
@@ -430,7 +437,14 @@ applied to construct a wide variety of domain specific objectives."
                                   155,
                                   1,
                                   Inf,
-                                  1)
+                                  1),
+                     numericInput(
+                       "N_bmd",
+                       "N",
+                       min = 1,
+                       max = 1000,
+                       value = 50
+                     )
 
                    ),
                    mainPanel(
@@ -611,8 +625,9 @@ server = function(input, output, session) {
       values$OD$w = w[order(x)]
 
       # give example for a finite sample size
-      n = 50
-      cat('Example allocations for n <= ', n, ":\n", sep = '')
+      #n = 50
+      n = input$N
+      cat('Suggested allocations for N = ', n, ":\n", sep = '')
       #cat(round(w[order(x)] * n), sep = ' ')
       cat(floor(w[order(x)] * n), sep = ' ')
 
@@ -849,9 +864,9 @@ server = function(input, output, session) {
       values$OD2$w = w[order(x)]
 
       # give example for a finite sample size
-      n = 50
-      cat('Allocations for n = ', n, ":\n", sep = '')
-      cat(round(w[order(x)] * n), sep = ' ')
+      n = input$N_bmd
+      cat('Suggested allocations for N = ', n, ":\n", sep = '')
+      cat(floor(w[order(x)] * n), sep = ' ')
       cat("\nD-efficiency:", round(values$OD2$Deff, 2))
     }
   })
