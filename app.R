@@ -1221,6 +1221,9 @@ compute_eff = function(
   w1 = w1/sum(w1)
   w2 = w2/sum(w2)
 
+  # if any of the doses are 0, add a small value
+  d1[which(d1==0)] = 1e-3
+  d2[which(d2==0)] = 1e-3
 
   # select gradient function
   grad_fun = grad_selector(model)
@@ -1236,9 +1239,11 @@ compute_eff = function(
 
   # compute and return efficiencies
   if (objective == "D")
-    (exp(obj_fun_M(c(d1, w1)))/exp(obj_fun_M(c(d2, w2))))^(1/length(theta))
+    eff = (exp(obj_fun_M(c(d1, w1)))/exp(obj_fun_M(c(d2, w2))))^(1/length(theta))
   else if (objective == "A")
-    obj_fun_M(c(d2, w2))/obj_fun_M(c(d1, w1))
+    eff = obj_fun_M(c(d2, w2))/obj_fun_M(c(d1, w1))
+
+  return(round(eff, 3))
 }
 
 # function for finding BMD designs
