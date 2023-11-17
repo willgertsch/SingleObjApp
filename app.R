@@ -1742,6 +1742,9 @@ plot_response = function(model, theta, limit, log_dose = F) {
   # generate dose levels
   x = seq(0.01, limit, length.out=100)
 
+  # add additional resolution close to 0 to help with log transform
+  x = c(x, seq(.001, .1, length.out=20))
+
   # compute response using appropriate model function
   if (model == "Logistic")
     y = 1/(1 + exp(-theta[1] - theta[2]*x))
