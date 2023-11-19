@@ -640,8 +640,8 @@ server = function(input, output, session) {
   observeEvent(
     input$copy_design,
     {
-      updateTextInput(session, "\\xi2_doses", value = toString(values$OD$x))
-      updateTextInput(session, "\\xi2_weights", value = toString(values$OD$w))
+      updateTextInput(session, "\\xi2_doses", value = toString(signif(values$OD$x, 3)))
+      updateTextInput(session, "\\xi2_weights", value = toString(round(values$OD$w, 3)))
     }
   )
   ##############################################################################
@@ -879,8 +879,8 @@ server = function(input, output, session) {
   observeEvent(
     input$copy_design_bmd,
     {
-      updateTextInput(session, "\\xi2_doses", value = toString(values$OD2$x))
-      updateTextInput(session, "\\xi2_weights", value = toString(values$OD2$w))
+      updateTextInput(session, "\\xi2_doses", value = toString(signif(values$OD2$x, 3)))
+      updateTextInput(session, "\\xi2_weights", value = toString(round(values$OD2$w, 3)))
     }
   )
 
