@@ -1806,14 +1806,17 @@ plot_response = function(model, theta, limit, log_dose = F) {
     y = x
 
   # plot
+  # scaling dose
   if (log_dose) {
     xlabel = "log dose"
+    dose = log(x)
   }
   else {
     xlabel = 'dose'
+    dose = x
   }
 
-  p = ggplot2::ggplot(mapping = ggplot2::aes(y = y, x = x)) +
+  p = ggplot2::ggplot(mapping = ggplot2::aes(y = y, x = dose)) +
     ggplot2::geom_line(color = "red") +
     ggplot2::geom_hline(yintercept = 0) +
     ggplot2::theme_bw() +
@@ -1821,10 +1824,6 @@ plot_response = function(model, theta, limit, log_dose = F) {
     ggplot2::xlab(xlabel) +
     ggplot2::ylab("P(dose)")
 
-  # add on scaling for log dose
-  if (log_dose) {
-    p = p + scale_x_continuous(trans = 'log')
-  }
 
   return(p)
 }
